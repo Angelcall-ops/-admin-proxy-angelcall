@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AngelCall — Connexion SuperAdmin</title>
+    <style>
+        /* ════════════════════════════════════════════════════════════════════
+           VARIABLES & RESET (Hérité du Dashboard)
+           ════════════════════════════════════════════════════════════════════ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-background:        #07070c;
+            --color-surface:           #0f0f18;
+            --color-surface-hover:     #1a1a28;
+            --color-border:            rgba(212, 175, 55, 0.18);
+            --color-border-hover:      rgba(212, 175, 55, 0.42);
+            --color-gold:              #d4af37;
+            --color-gold-soft:         #f0d899;
+            --color-text:              #e8e8f0;
+            --color-text-muted:        #7a7a9a;
+            --color-error:             #ff4d4f;
+            --font-family:             'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           COMPOSANTS UI
+           ════════════════════════════════════════════════════════════════════ */
+        .login-card {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(212, 175, 55, 0.05);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            color: var(--color-gold);
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--color-text-muted);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--color-gold-soft);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            background-color: var(--color-background);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--color-gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--color-gold);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--color-gold-soft);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:disabled {
+            background-color: var(--color-border);
+            color: var(--color-text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            color: var(--color-error);
+            font-size: 13px;
+            text-align: center;
+            min-height: 20px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="login-header">
+            <h1>AngelCall</h1>
+            <p>Administration Système</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Identifiant</label>
+                <input type="text" id="username" autocomplete="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" id="loginBtn" class="btn-submit">Connexion</button>
+            <div id="errorMsg" class="error-msg"></div>
+        </form>
+    </div>
+
+    <script>
+        /* ════════════════════════════════════════════════════════════════════
+           LOGIQUE DE CONNEXION (Synchronisée avec n8n)
+           ════════════════════════════════════════════════════════════════════ */
+        
+        // URL exacte de ton instance n8n de production
+        const API_BASE = 'https://n8n.angelcall.fr/webhook';
+
+        // 1. Vérification au chargement : Si déjà connecté, on zappe le login
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${API_BASE}/admin-apisession`, { 
+                    credentials: 'include' 
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.valid) {
+                        window.location.href = 'index.html'; // Redirection vers ton Vercel
+                    }
+                }
+            } catch (err) {
+                console.warn("Session non valide ou n8n injoignable", err);
+            }
+        });
+
+        // 2. Gestion de la soumission du formulaire
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Empêche le rechargement de la page
+            
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('errorMsg');
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            
+            err.textContent = '';
+            btn.disabled = true;
+            btn.textContent = 'Vérification...';
+
+            try {
+                // Appel au webhook n8n
+                const res = await fetch(`${API_BASE}/admin-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include', // Autorise l'envoi du cookie de session
+                    body: JSON.stringify({
+                        username: user,
+                        password: pass
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    // Sauvegarde des infos pour l'UI du Dashboard
+                    sessionStorage.setItem('ac_user', JSON.stringify({ 
+                        fullname: data.fullname || 'Administrateur', 
+                        role: data.role || 'superadmin' 
+                    }));
+                    
+                    // Redirection réussie !
+                    window.location.href = 'index.html'; 
+                } else {
+                    err.textContent = data.error || 'Identifiants incorrects.';
+                }
+            } catch (ex) {
+                console.error("Erreur Login:", ex);
+                err.textContent = 'Serveur inaccessible. Vérifiez que n8n est actif.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Connexion';
+            }
+        });
+    </script>
+</body>
+</html>
