@@ -1,40 +1,100 @@
-export default async function handler(req) {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const path = url.pathname;
-  
-  // ❌ REMPLACE par TES URLs n8n VÉRIFIÉES
- const n8nRoutes = {
-  '/admin-login': 'https://n8n.angelcall.fr/webhook/4bb68a11-b698-46dd-8d8d-0c463de75501',
-  '/admin-apisession': 'https://n8n.angelcall.fr/webhook/a7a8be7e-5e35-4ece-89f2-6a42f0127e2e',
-  '/admin-apirestaurants': 'https://n8n.angelcall.fr/webhook/62f10f70-eeed-4799-a735-5df14bb37649',
-  '/admin-save': 'https://n8n.angelcall.fr/webhook/2cf714f4-5541-445f-af52-fd1f2ccd19a0',
-  '/admin-apigenerate-prompt': 'https://n8n.angelcall.fr/webhook/54834634-18dd-4a4a-a449-fd5cff5cdb15',
-  '/admin-delete': 'https://n8n.angelcall.fr/webhook/07e65afe-c514-4aac-8063-c73be25cce8e'
+// api/proxy.js — AngelCall Secure Proxy V2.0
+// Conserve le routing par map, corrige les 4 failles critiques
+
+// ✅ FAILLE 4 CORRIGÉE : URLs dans les variables d'env Vercel, jamais dans le code
+const N8N_ROUTES = {
+  '/admin-login':           process.env.N8N_ROUTE_LOGIN,
+  '/admin-apisession':      process.env.N8N_ROUTE_SESSION,
+  '/admin-apirestaurants':  process.env.N8N_ROUTE_RESTAURANTS,
+  '/admin-save':            process.env.N8N_ROUTE_SAVE,
+  '/admin-apigenerate-prompt': process.env.N8N_ROUTE_GENERATE_PROMPT,
+  '/admin-delete':          process.env.N8N_ROUTE_DELETE,
 };
-  const targetUrl = n8nRoutes[path];
-  if (!targetUrl) return new Response('Route inconnue', { status: 404 });
+
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://admin-proxy-angelcall.vercel.app';
+
+export default async function handler(req) {
+  const url  = new URL(req.url, `https://${req.headers.get('host')}`);
+  const path = url.pathname.replace(/^\/admin-path/, ''); // strip le préfixe Vercel rewrite
+
+  // ✅ FAILLE 3 CORRIGÉE : Preflight OPTIONS → réponse 204 immédiate
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders(req.headers.get('origin')),
+    });
+  }
+
+  const targetUrl = N8N_ROUTES[path];
+  if (!targetUrl) {
+    return new Response(JSON.stringify({ error: 'Route inconnue', path }), {
+      status: 404,
+      headers: { ...corsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' },
+    });
+  }
 
   try {
-    const response = await fetch(targetUrl, {
-      method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...Object.fromEntries(req.headers.entries())
-      },
-      body: req.method !== 'GET' ? await req.text() : undefined
+    const body = !['GET', 'HEAD'].includes(req.method) ? await req.text() : undefined;
+
+    // ✅ FAILLE 1 CORRIGÉE : relay du Cookie entrant vers n8n
+    const forwardHeaders = {
+      'Content-Type': 'application/json',
+      'Accept':       'application/json',
+    };
+    const incomingCookie = req.headers.get('cookie');
+    if (incomingCookie) {
+      forwardHeaders['Cookie'] = incomingCookie; // sessiontoken relayé à n8n
+    }
+
+    const n8nRes = await fetch(targetUrl, {
+      method:  req.method,
+      headers: forwardHeaders,
+      body,
     });
 
-    const data = await response.json();
-    
-    return new Response(JSON.stringify(data), {
-      status: response.status,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': 'true',
-        'Content-Type': 'application/json'
-      }
+    // ✅ FAILLE 2 CORRIGÉE : relay du Set-Cookie de n8n + Origin explicite
+    const responseHeaders = {
+      ...corsHeaders(req.headers.get('origin')),
+      'Content-Type': 'application/json',
+    };
+
+    // Copie le Set-Cookie de n8n (pose du sessiontoken HTTP-Only après login)
+    const setCookie = n8nRes.headers.get('set-cookie');
+    if (setCookie) {
+      responseHeaders['Set-Cookie'] = setCookie;
+    }
+
+    const data = await n8nRes.text(); // text() pour ne pas crasher si n8n renvoie du non-JSON
+
+    return new Response(data, {
+      status:  n8nRes.status,
+      headers: responseHeaders,
     });
+
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Proxy erreur' }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: 'Proxy erreur', details: error.message }),
+      {
+        status:  502,
+        headers: { ...corsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' },
+      }
+    );
   }
 }
+
+// Génère les headers CORS corrects — credentials impose un Origin explicite, jamais *
+function corsHeaders(origin) {
+  const allowed = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
+  return {
+    'Access-Control-Allow-Origin':      allowed,
+    'Access-Control-Allow-Credentials': 'true',         // ← obligatoire pour credentials:include
+    'Access-Control-Allow-Methods':     'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers':     'Content-Type, Authorization',
+    'Access-Control-Expose-Headers':    'Set-Cookie',
+    'Vary':                             'Origin',
+  };
+}
+
+export const config = {
+  runtime: 'edge', // conservé — Edge Runtime est parfait pour ce use-case
+};

@@ -1,8 +1,5 @@
-echo '{
-  "functions": {
-    "proxy.js": {
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [{ "source": "/(.*)", "destination": "/proxy.js" }]
-}' > vercel.json
+{
+  "rewrites": [
+    { "source": "/admin-path(.*)", "destination": "/api/proxy" }
+  ]
+}

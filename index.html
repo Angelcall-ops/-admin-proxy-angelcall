@@ -1705,19 +1705,19 @@
          ═══════════════════════════════════════════════════════════════════════ -->
     <script>
 'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════════════
    ANGELCALL SUPERADMIN — V13.2 REFACTORED
    Architecture : Namespace Pattern
    Modules : AngelCall.Config | .State | .Api | .UI | .Form | .Hours
    Payload camelCase garanti — structure strictement identique à V13.2 original
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════════════════════════════
-
 /* ─── CONFIG ──────────────────────────────────────────────────────────────── */
 const AngelCall = {};
 
 AngelCall.Config = {
-    API_BASE_URL : window.ANGELCALL_API_URL || 'https://n8n.angelcall.fr/webhook',
+    APIBASEURL: '/admin-path',
     PAGE_SIZE    : 50,
     DAY_NAMES    : ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche']
 };
@@ -1795,7 +1795,8 @@ AngelCall.Api = {
     /** Vérifie la session RBAC superadmin et injecte les infos dans la navbar. */
     async checkSession() {
         try {
-            const res  = await fetch(`/admin-apisession`, { method:'GET', credentials:'include' });
+            const BASE = AngelCall.Config.API_BASE_URL;
+            const res  = await fetch(`${BASE}/admin-api/session`, { method:'GET', credentials:'include' });
             const data = await res.json();
             if (!data.valid) { window.location.href = '/login.html'; return; }
             if (data.role && data.role !== 'superadmin') { window.location.href = '/patron-dashboard.html'; return; }
@@ -1809,7 +1810,7 @@ AngelCall.Api = {
 
     /** Déconnexion propre + redirection. */
     async logout() {
-        try { await fetch(`/admin-logout`, { method:'POST', credentials:'include' }); }
+        try { await fetch(`${AngelCall.Config.API_BASE_URL}/admin-logout`, { method:'POST', credentials:'include' }); }
         catch(e) { console.error('Logout error:', e); }
         finally  { window.location.href = '/login.html'; }
     },
@@ -1821,9 +1822,10 @@ AngelCall.Api = {
      */
     async loadRestaurants(offset = 0, query = '') {
         const S    = AngelCall.State;
+        const BASE = AngelCall.Config.API_BASE_URL;
         S.currentOffset = offset;
         const q   = (query || '').trim();
-        const url = `/admin-apirestaurants?offset=${offset}` + (q ? `&q=${encodeURIComponent(q)}` : '');
+        const url = `${BASE}/admin-api/restaurants?offset=${offset}` + (q ? `&q=${encodeURIComponent(q)}` : '');
         try {
             const res  = await this._fetch(url, { method:'GET' });
             if (!res) return;
@@ -1853,6 +1855,7 @@ AngelCall.Api = {
     async saveRestaurant() {
         const S    = AngelCall.State;
         const h    = AngelCall._h;
+        const BASE = AngelCall.Config.API_BASE_URL;
 
         if (S.isSaving) return;
         S.isSaving = true;
@@ -1983,7 +1986,7 @@ AngelCall.Api = {
         };
 
         try {
-            const res  = await this._fetch(`/admin-save`, { method:'POST', body: JSON.stringify(payload) });
+            const res  = await this._fetch(`${BASE}/admin-save`, { method:'POST', body: JSON.stringify(payload) });
             if (!res) return;
             const data = await res.json();
             if (res.status === 409) {
@@ -2020,12 +2023,13 @@ AngelCall.Api = {
     /** Suppression définitive d'un restaurant (après confirmation). */
     async executeDelete() {
         const S    = AngelCall.State;
+        const BASE = AngelCall.Config.API_BASE_URL;
         if (!S.deletingId) return;
         const btn     = document.getElementById('btnConfirmDelete');
         btn.disabled  = true;
         btn.innerHTML = '<span class="spinner"></span> Suppression…';
         try {
-            const res  = await this._fetch(`/admin-delete`, { method:'POST', body: JSON.stringify({ id: S.deletingId }) });
+            const res  = await this._fetch(`${BASE}/admin-delete`, { method:'POST', body: JSON.stringify({ id: S.deletingId }) });
             if (!res) return;
             const data = await res.json();
             if (data.success) {
@@ -2046,12 +2050,13 @@ AngelCall.Api = {
     /** Génère un system prompt IA via Groq et l'injecte dans #fsystemprompt. */
     async generateAIPrompt() {
         const h    = AngelCall._h;
+        const BASE = AngelCall.Config.API_BASE_URL;
         const btn  = document.getElementById('btnGeneratePrompt');
         const orig = btn.textContent;
         btn.disabled  = true;
         btn.innerHTML = '<span class="spinner"></span> Génération…';
         try {
-            const res  = await this._fetch(`/admin-apigenerate-prompt`, {
+            const res  = await this._fetch(`${BASE}/admin-api/generate-prompt`, {
                 method : 'POST',
                 body   : JSON.stringify({
                     restaurantName : h.getFieldValue('fname'),
@@ -2079,12 +2084,13 @@ AngelCall.Api = {
 
     /** Rafraîchit les vues matérialisées d'analytics PostgreSQL. */
     async refreshAnalytics() {
+        const BASE = AngelCall.Config.API_BASE_URL;
         const btn  = document.getElementById('btnRefreshAnalytics');
         btn.disabled  = true;
         btn.innerHTML = '<span class="spinner"></span> Rafraîchissement…';
         AngelCall.UI.showToast('⏳ Rafraîchissement des analytics en cours…', 'info');
         try {
-            const res  = await this._fetch(`/admin-apirefresh-analytics`, { method:'POST' });
+            const res  = await this._fetch(`${BASE}/admin-api/refresh-analytics`, { method:'POST' });
             if (!res) return;
             const data = await res.json();
             if (data.success) { AngelCall.UI.showToast('✅ Vues matérialisées rafraîchies.', 'success'); }

@@ -1,235 +1,301 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AngelCall — Connexion SuperAdmin</title>
-    <style>
-        /* ════════════════════════════════════════════════════════════════════
-           VARIABLES & RESET (Hérité du Dashboard)
-           ════════════════════════════════════════════════════════════════════ */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AngelCall — Connexion SuperAdmin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-background:     #07070c;
+      --color-surface:        #0f0f18;
+      --color-surface-raised: #14141f;
+      --color-border:         rgba(212,175,55,.18);
+      --color-border-hover:   rgba(212,175,55,.42);
+      --color-gold:           #d4af37;
+      --color-gold-soft:      #f0d899;
+      --color-gold-dim:       rgba(212,175,55,.12);
+      --color-text-primary:   #e8e8f0;
+      --color-text-secondary: #a0a0c0;
+      --color-text-muted:     #6a6a8a;
+      --color-danger:         #e74c3c;
+      --color-danger-soft:    rgba(231,76,60,.15);
+      --color-success:        #27ae60;
+      --radius-medium:        10px;
+      --radius-large:         14px;
+      --radius-pill:          999px;
+      --shadow-card:          0 4px 24px rgba(0,0,0,.4);
+      --shadow-modal:         0 24px 80px rgba(0,0,0,.7);
+      --transition-base:      .22s ease;
+      --font-family:          Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    html { font-size: 15px; }
+    body {
+      font-family: var(--font-family);
+      background: var(--color-background);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        :root {
-            --color-background:        #07070c;
-            --color-surface:           #0f0f18;
-            --color-surface-hover:     #1a1a28;
-            --color-border:            rgba(212, 175, 55, 0.18);
-            --color-border-hover:      rgba(212, 175, 55, 0.42);
-            --color-gold:              #d4af37;
-            --color-gold-soft:         #f0d899;
-            --color-text:              #e8e8f0;
-            --color-text-muted:        #7a7a9a;
-            --color-error:             #ff4d4f;
-            --font-family:             'Inter', system-ui, -apple-system, sans-serif;
-        }
+    /* ── CARD ── */
+    .login-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-large);
+      box-shadow: var(--shadow-modal);
+      width: 100%;
+      max-width: 400px;
+      padding: 40px 36px 36px;
+    }
+    .login-brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-brand .brand-icon { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+    .login-brand h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--color-gold-soft);
+      letter-spacing: -.01em;
+    }
+    .login-brand p {
+      font-size: 0.76rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
 
-        body {
-            background-color: var(--color-background);
-            color: var(--color-text);
-            font-family: var(--font-family);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    /* ── FORM ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+      letter-spacing: .02em;
+    }
+    .form-control {
+      display: block;
+      width: 100%;
+      padding: 10px 13px;
+      background: var(--color-surface-raised);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-medium);
+      color: var(--color-text-primary);
+      font-size: 0.88rem;
+      font-family: var(--font-family);
+      outline: none;
+      transition: border-color var(--transition-base), box-shadow var(--transition-base);
+    }
+    .form-control:focus {
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.12);
+    }
+    .form-control::placeholder { color: var(--color-text-muted); opacity: .7; }
+    .form-control:disabled { opacity: .35; cursor: not-allowed; }
 
-        /* ════════════════════════════════════════════════════════════════════
-           COMPOSANTS UI
-           ════════════════════════════════════════════════════════════════════ */
-        .login-card {
-            background-color: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: 16px;
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(212, 175, 55, 0.05);
-        }
+    /* ── BUTTON ── */
+    .btn-submit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 20px;
+      margin-top: 24px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: linear-gradient(135deg, var(--color-gold) 0%, #b8962e 100%);
+      color: #07070c;
+      font-size: 0.9rem;
+      font-weight: 800;
+      font-family: var(--font-family);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      letter-spacing: .02em;
+    }
+    .btn-submit:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(212,175,55,.3); }
+    .btn-submit:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 15px; height: 15px;
+      border: 2px solid rgba(7,7,12,.3);
+      border-top-color: #07070c;
+      border-radius: 50%;
+      animation: spin .55s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-        .login-header h1 {
-            color: var(--color-gold);
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
+    /* ── ERROR BOX ── */
+    .error-box {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 13px;
+      border-radius: var(--radius-medium);
+      background: var(--color-danger-soft);
+      border: 1px solid rgba(231,76,60,.32);
+      color: var(--color-danger);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+    .error-box.is-visible { display: flex; }
 
-        .login-header p {
-            color: var(--color-text-muted);
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: var(--color-gold-soft);
-            font-size: 13px;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            background-color: var(--color-background);
-            border: 1px solid var(--color-border);
-            color: var(--color-text);
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: var(--color-gold);
-            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
-        }
-
-        .btn-submit {
-            width: 100%;
-            background-color: var(--color-gold);
-            color: #000;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--color-gold-soft);
-            transform: translateY(-1px);
-        }
-
-        .btn-submit:disabled {
-            background-color: var(--color-border);
-            color: var(--color-text-muted);
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-msg {
-            color: var(--color-error);
-            font-size: 13px;
-            text-align: center;
-            min-height: 20px;
-            margin-top: 16px;
-        }
-    </style>
+    /* ── FOOTER ── */
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+    }
+  </style>
 </head>
 <body>
-
-    <div class="login-card">
-        <div class="login-header">
-            <h1>AngelCall</h1>
-            <p>Administration Système</p>
-        </div>
-
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Identifiant</label>
-                <input type="text" id="username" autocomplete="username" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" autocomplete="current-password" required>
-            </div>
-
-            <button type="submit" id="loginBtn" class="btn-submit">Connexion</button>
-            <div id="errorMsg" class="error-msg"></div>
-        </form>
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-icon">📞</span>
+      <h1>AngelCall SuperAdmin</h1>
+      <p>Accès réservé aux administrateurs système</p>
     </div>
 
-    <script>
-        /* ════════════════════════════════════════════════════════════════════
-           LOGIQUE DE CONNEXION (Synchronisée avec n8n)
-           ════════════════════════════════════════════════════════════════════ */
-        
-        // URL exacte de ton instance n8n de production
-        const API_BASE = 'https://n8n.angelcall.fr/webhook';
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="inputUsername">Identifiant</label>
+        <input
+          type="text"
+          class="form-control"
+          id="inputUsername"
+          placeholder="superadmin"
+          autocomplete="username"
+          required
+          autofocus
+        >
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="inputPassword">Mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          id="inputPassword"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        >
+      </div>
 
-        // 1. Vérification au chargement : Si déjà connecté, on zappe le login
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const res = await fetch(`${API_BASE}/admin-apisession`, { 
-                    credentials: 'include' 
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.valid) {
-                        window.location.href = 'index.html'; // Redirection vers ton Vercel
-                    }
-                }
-            } catch (err) {
-                console.warn("Session non valide ou n8n injoignable", err);
-            }
+      <div class="error-box" id="errorBox">
+        <span>⚠️</span>
+        <span id="errorMsg">Identifiants incorrects.</span>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btnLogin">
+        Se connecter
+      </button>
+    </form>
+
+    <div class="login-footer">AngelCall V13.2.2 &mdash; Environnement Production</div>
+  </div>
+
+  <script>
+    const API_BASE = '/admin-path';
+
+    const form      = document.getElementById('loginForm');
+    const btnLogin  = document.getElementById('btnLogin');
+    const errorBox  = document.getElementById('errorBox');
+    const errorMsg  = document.getElementById('errorMsg');
+    const inputUser = document.getElementById('inputUsername');
+    const inputPass = document.getElementById('inputPassword');
+
+    function setLoading(on) {
+      btnLogin.disabled = on;
+      btnLogin.innerHTML = on
+        ? '<span class="spinner"></span> Connexion…'
+        : 'Se connecter';
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorBox.classList.add('is-visible');
+    }
+
+    function hideError() {
+      errorBox.classList.remove('is-visible');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const username = inputUser.value.trim();
+      const password = inputPass.value;
+
+      if (!username || !password) {
+        showError('Veuillez remplir tous les champs.');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Timeout de 12 secondes pour prévenir un gel silencieux
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 12000);
+
+        const res = await fetch(`${API_BASE}/admin-login`, {
+          method: 'POST',
+          credentials: 'include',          // ← HTTP-Only cookie posé par n8n
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+          signal: controller.signal,
         });
 
-        // 2. Gestion de la soumission du formulaire
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); // Empêche le rechargement de la page
-            
-            const btn = document.getElementById('loginBtn');
-            const err = document.getElementById('errorMsg');
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value;
-            
-            err.textContent = '';
-            btn.disabled = true;
-            btn.textContent = 'Vérification...';
+        clearTimeout(tid);
 
-            try {
-                // Appel au webhook n8n
-                const res = await fetch(`${API_BASE}/admin-login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include', // Autorise l'envoi du cookie de session
-                    body: JSON.stringify({
-                        username: user,
-                        password: pass
-                    })
-                });
+        if (res.status === 401) {
+          showError('Identifiants incorrects ou compte inactif.');
+          return;
+        }
+        if (res.status === 429) {
+          showError('Trop de tentatives. Réessayez dans quelques minutes.');
+          return;
+        }
+        if (!res.ok) {
+          showError(`Erreur serveur (${res.status}). Contactez l'équipe technique.`);
+          return;
+        }
 
-                const data = await res.json();
+        const data = await res.json().catch(() => null);
 
-                if (res.ok && data.success) {
-                    // Sauvegarde des infos pour l'UI du Dashboard
-                    sessionStorage.setItem('ac_user', JSON.stringify({ 
-                        fullname: data.fullname || 'Administrateur', 
-                        role: data.role || 'superadmin' 
-                    }));
-                    
-                    // Redirection réussie !
-                    window.location.href = 'index.html'; 
-                } else {
-                    err.textContent = data.error || 'Identifiants incorrects.';
-                }
-            } catch (ex) {
-                console.error("Erreur Login:", ex);
-                err.textContent = 'Serveur inaccessible. Vérifiez que n8n est actif.';
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Connexion';
-            }
-        });
-    </script>
+        if (data && data.success) {
+          // Redirection post-auth — le cookie sessiontoken est posé en HTTP-Only
+          window.location.href = data.redirect || 'dashboard_v13.2.2_refactored.html';
+        } else {
+          showError(data?.error || 'Réponse inattendue du serveur.');
+        }
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          showError('Le serveur ne répond pas (timeout). Vérifiez votre connexion.');
+        } else {
+          showError('Erreur réseau : ' + err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Masquer l'erreur dès que l'utilisateur retape
+    [inputUser, inputPass].forEach(el =>
+      el.addEventListener('input', hideError)
+    );
+  </script>
 </body>
 </html>
