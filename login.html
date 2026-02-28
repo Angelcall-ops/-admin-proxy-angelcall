@@ -276,7 +276,7 @@
 
         if (data && data.success) {
           // Redirection post-auth — le cookie sessiontoken est posé en HTTP-Only
-          window.location.href = data.redirect || 'dashboard_v13.2.2_refactored.html';
+          window.location.href = data.redirect || 'index.html'
         } else {
           showError(data?.error || 'Réponse inattendue du serveur.');
         }
