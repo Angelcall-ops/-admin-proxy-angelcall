@@ -1,0 +1,2631 @@
+<!-- AngelCall SuperAdmin Dashboard V13.2.2 — 2026-02-27 -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AngelCall — SuperAdmin Dashboard V13.2</title>
+    <style>
+        /* ════════════════════════════════════════════════════════════════════
+           RESET & VARIABLES
+           ════════════════════════════════════════════════════════════════════ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-background:        #07070c;
+            --color-surface:           #0f0f18;
+            --color-surface-raised:    #14141f;
+            --color-surface-hover:     #1a1a28;
+            --color-border:            rgba(212, 175, 55, 0.18);
+            --color-border-hover:      rgba(212, 175, 55, 0.42);
+            --color-gold:              #d4af37;
+            --color-gold-soft:         #f0d899;
+            --color-gold-dim:          rgba(212, 175, 55, 0.12);
+            --color-text-primary:      #e8e8f0;
+            --color-text-secondary:    #a0a0c0;
+            --color-text-muted:        #6a6a8a;
+            --color-danger:            #e74c3c;
+            --color-danger-soft:       rgba(231, 76, 60, 0.15);
+            --color-success:           #27ae60;
+            --color-success-soft:      rgba(39, 174, 96, 0.15);
+            --color-warning:           #f39c12;
+            --color-warning-soft:      rgba(243, 156, 18, 0.12);
+            --color-info:              #4a9eff;
+            --color-info-soft:         rgba(74, 158, 255, 0.12);
+            --radius-small:            6px;
+            --radius-medium:           10px;
+            --radius-large:            14px;
+            --radius-pill:             999px;
+            --shadow-card:             0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow-modal:            0 24px 80px rgba(0, 0, 0, 0.7);
+            --transition-fast:         0.15s ease;
+            --transition-base:         0.22s ease;
+            --font-family:             'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        html {
+            font-size: 15px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-background);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           SCROLLBARS
+           ════════════════════════════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--color-surface); }
+        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.28); border-radius: var(--radius-pill); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.50); }
+
+        /* ════════════════════════════════════════════════════════════════════
+           TOP NAVIGATION
+           ════════════════════════════════════════════════════════════════════ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 58px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 14px;
+            z-index: 200;
+            box-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--color-gold-soft);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .navbar-brand .brand-icon { font-size: 1.25rem; }
+
+        .navbar-brand .brand-version {
+            font-size: 0.72rem;
+            font-weight: 400;
+            color: var(--color-text-muted);
+            margin-left: 2px;
+        }
+
+        .navbar-spacer { flex: 1; }
+
+        .navbar-user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .navbar-user-info .user-name { color: var(--color-gold-soft); font-weight: 700; }
+
+        .navbar-user-info .user-role {
+            background: var(--color-gold-dim);
+            border: 1px solid var(--color-border);
+            color: var(--color-gold);
+            padding: 2px 9px;
+            border-radius: var(--radius-pill);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            background: transparent;
+            color: var(--color-danger);
+            font-family: var(--font-family);
+            transition: all var(--transition-base);
+        }
+
+        .btn-logout:hover {
+            background: var(--color-danger-soft);
+            border-color: var(--color-danger);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           MAIN LAYOUT
+           ════════════════════════════════════════════════════════════════════ */
+        .main-wrapper {
+            margin-top: 58px;
+            padding: 26px 30px;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           STATISTICS CARDS
+           ════════════════════════════════════════════════════════════════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-large);
+            padding: 18px 16px;
+            text-align: center;
+            transition: all var(--transition-base);
+            cursor: default;
+        }
+
+        .stat-card:hover {
+            border-color: var(--color-border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-gold);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.72rem;
+            color: var(--color-text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           PAGE TOOLBAR
+           ════════════════════════════════════════════════════════════════════ */
+        .page-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-toolbar-title {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--color-gold-soft);
+        }
+
+        .search-box { position: relative; }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+
+        .search-box input { padding-left: 32px; width: 240px; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           BUTTONS
+           ════════════════════════════════════════════════════════════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-family: var(--font-family);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all var(--transition-base);
+            letter-spacing: 0.02em;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-gold) 0%, #b8962e 100%);
+            color: #07070c;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.88;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: var(--color-gold);
+            color: var(--color-gold);
+            background: var(--color-gold-dim);
+        }
+
+        .btn-danger {
+            background: var(--color-danger-soft);
+            border: 1px solid rgba(231, 76, 60, 0.35);
+            color: var(--color-danger);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(231, 76, 60, 0.25);
+            border-color: var(--color-danger);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--color-border-hover);
+            color: var(--color-gold);
+        }
+
+        .btn-ghost:hover:not(:disabled) { background: var(--color-gold-dim); }
+
+        .btn-small { padding: 5px 13px; font-size: 0.76rem; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           DATA TABLE
+           ════════════════════════════════════════════════════════════════════ */
+        .table-container {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-large);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+
+        .data-table thead { background: rgba(212, 175, 55, 0.05); }
+
+        .data-table thead th {
+            padding: 11px 15px;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid var(--color-border);
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr { transition: background var(--transition-fast); }
+        .data-table tbody tr:hover { background: rgba(212, 175, 55, 0.025); }
+
+        .data-table tbody td {
+            padding: 11px 15px;
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:last-child td { border-bottom: none; }
+
+        .table-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-muted);
+        }
+
+        .table-empty-state .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+        .table-empty-state .empty-message { font-size: 0.88rem; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           BADGES
+           ════════════════════════════════════════════════════════════════════ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 0.7rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-active {
+            background: var(--color-success-soft);
+            color: var(--color-success);
+            border: 1px solid rgba(39, 174, 96, 0.28);
+        }
+
+        .badge-inactive {
+            background: rgba(106, 106, 138, 0.12);
+            color: var(--color-text-muted);
+            border: 1px solid rgba(106, 106, 138, 0.22);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           PAGINATION
+           ════════════════════════════════════════════════════════════════════ */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .pagination .page-btn {
+            padding: 6px 13px;
+            border-radius: var(--radius-medium);
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface-raised);
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all var(--transition-base);
+        }
+
+        .pagination .page-btn:hover:not(:disabled) {
+            border-color: var(--color-gold);
+            color: var(--color-gold);
+        }
+
+        .pagination .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .pagination .page-info {
+            font-size: 0.78rem;
+            color: var(--color-text-muted);
+            padding: 0 8px;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           FORMS — BASE
+           ════════════════════════════════════════════════════════════════════ */
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+
+        .form-label {
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--color-text-secondary);
+            margin-bottom: 5px;
+            letter-spacing: 0.02em;
+        }
+
+        .form-label .required-star { color: var(--color-danger); margin-left: 2px; }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-medium);
+            color: var(--color-text-primary);
+            font-size: 0.84rem;
+            font-family: var(--font-family);
+            transition: border-color var(--transition-base), box-shadow var(--transition-base);
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--color-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+        }
+
+        .form-control:disabled { opacity: 0.35; cursor: not-allowed; }
+        .form-control::placeholder { color: var(--color-text-muted); opacity: 0.7; }
+
+        textarea.form-control { resize: vertical; min-height: 82px; line-height: 1.5; }
+        select.form-control { cursor: pointer; }
+
+        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           CHARACTER COUNTER
+           ════════════════════════════════════════════════════════════════════ */
+        .char-counter {
+            text-align: right;
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            margin-top: 3px;
+            transition: color var(--transition-fast);
+        }
+
+        .char-counter.char-counter-warning { color: var(--color-warning); font-weight: 600; }
+        .char-counter.char-counter-over { color: var(--color-danger); font-weight: 700; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           TOGGLE SWITCH
+           ════════════════════════════════════════════════════════════════════ */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.06);
+        }
+
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-row-info { flex: 1; }
+        .toggle-row-label { font-size: 0.82rem; color: var(--color-text-primary); font-weight: 600; }
+        .toggle-row-sublabel { font-size: 0.71rem; color: var(--color-text-muted); margin-top: 2px; }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 2px;
+            top: 2px;
+            background: var(--color-text-muted);
+            border-radius: 50%;
+            transition: all var(--transition-base);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(212, 175, 55, 0.18);
+            border-color: var(--color-gold);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(18px);
+            background: var(--color-gold);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           SECTION TITLES
+           ════════════════════════════════════════════════════════════════════ */
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--color-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           CONDITIONAL PANEL
+           ════════════════════════════════════════════════════════════════════ */
+        .conditional-panel {
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-medium);
+            padding: 14px 16px;
+            margin-top: 10px;
+        }
+
+        .conditional-sub {
+            margin-top: 12px;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .conditional-sub.is-hidden { display: none; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           RGPD PANEL
+           ════════════════════════════════════════════════════════════════════ */
+        .rgpd-panel {
+            background: rgba(212, 175, 55, 0.04);
+            border: 1px solid rgba(212, 175, 55, 0.16);
+            border-radius: var(--radius-medium);
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           PATRON WARNING BANNER
+           ════════════════════════════════════════════════════════════════════ */
+        .patron-warning-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            background: var(--color-warning-soft);
+            border: 1px solid rgba(243, 156, 18, 0.28);
+            border-radius: var(--radius-medium);
+            padding: 11px 14px;
+            font-size: 0.8rem;
+            color: var(--color-warning);
+            margin-bottom: 14px;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           MODAL
+           ════════════════════════════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 10, 0.88);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+            backdrop-filter: blur(7px);
+            -webkit-backdrop-filter: blur(7px);
+        }
+
+        .modal-overlay.is-open { opacity: 1; pointer-events: all; }
+
+        .modal-dialog {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-large);
+            width: 100%;
+            max-width: 880px;
+            max-height: 93vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-modal);
+            transform: scale(0.97) translateY(8px);
+            transition: transform var(--transition-base);
+        }
+
+        .modal-overlay.is-open .modal-dialog { transform: scale(1) translateY(0); }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px 22px;
+            border-bottom: 1px solid var(--color-border);
+            flex-shrink: 0;
+        }
+
+        .modal-header .modal-icon { font-size: 1.3rem; }
+
+        .modal-header .modal-title {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--color-gold-soft);
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-small);
+            line-height: 1;
+            font-family: var(--font-family);
+            transition: color var(--transition-fast);
+        }
+
+        .modal-close-btn:hover { color: var(--color-text-primary); }
+
+        .modal-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 22px;
+            border-top: 1px solid var(--color-border);
+            flex-shrink: 0;
+        }
+
+        .modal-footer .save-status-text {
+            flex: 1;
+            font-size: 0.76rem;
+            color: var(--color-text-muted);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           TABS
+           ════════════════════════════════════════════════════════════════════ */
+        .tabs-nav {
+            display: flex;
+            gap: 2px;
+            padding: 10px 22px 0;
+            border-bottom: 1px solid var(--color-border);
+            background: var(--color-surface-raised);
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            padding: 8px 14px;
+            font-size: 0.77rem;
+            font-weight: 700;
+            border: none;
+            background: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+            border-radius: var(--radius-small) var(--radius-small) 0 0;
+            font-family: var(--font-family);
+            letter-spacing: 0.02em;
+        }
+
+        .tab-btn:hover { color: var(--color-text-primary); }
+
+        .tab-btn.is-active {
+            color: var(--color-gold);
+            border-bottom-color: var(--color-gold);
+            background: rgba(212, 175, 55, 0.07);
+        }
+
+        .tabs-content { flex: 1; overflow-y: auto; min-height: 0; }
+
+        .tab-panel { display: none; padding: 20px 22px; }
+        .tab-panel.is-active { display: block; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           OPENING HOURS TABLE
+           ════════════════════════════════════════════════════════════════════ */
+        .hours-table { width: 100%; border-collapse: collapse; }
+
+        .hours-table th {
+            font-size: 0.69rem;
+            color: var(--color-text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        .hours-table td {
+            padding: 6px 8px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+        }
+
+        .hours-table .day-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            min-width: 90px;
+        }
+
+        .hours-table input[type="time"] { width: 112px; }
+        .hours-table input[type="number"] { width: 80px; }
+
+        .hours-bulk-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           CONFIRM DIALOG
+           ════════════════════════════════════════════════════════════════════ */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 10, 0.88);
+            z-index: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+            backdrop-filter: blur(7px);
+            -webkit-backdrop-filter: blur(7px);
+        }
+
+        .confirm-overlay.is-open { opacity: 1; pointer-events: all; }
+
+        .confirm-dialog {
+            background: var(--color-surface);
+            border: 1px solid rgba(231, 76, 60, 0.35);
+            border-radius: var(--radius-large);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-modal);
+            transform: scale(0.97);
+            transition: transform var(--transition-base);
+        }
+
+        .confirm-overlay.is-open .confirm-dialog { transform: scale(1); }
+        .confirm-dialog .modal-header { border-bottom-color: rgba(231, 76, 60, 0.2); }
+
+        .confirm-dialog .confirm-body {
+            padding: 20px 22px;
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: var(--color-text-primary);
+        }
+
+        .confirm-dialog .confirm-body strong { color: var(--color-gold-soft); }
+
+        .confirm-dialog .confirm-body small {
+            display: block;
+            margin-top: 6px;
+            color: var(--color-text-muted);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           TOAST NOTIFICATIONS
+           ════════════════════════════════════════════════════════════════════ */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: var(--radius-medium);
+            font-size: 0.84rem;
+            font-weight: 600;
+            max-width: 380px;
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: all;
+        }
+
+        .toast.toast-visible { transform: translateY(0) scale(1); opacity: 1; }
+
+        .toast-success {
+            background: rgba(39, 174, 96, 0.14);
+            border: 1px solid rgba(39, 174, 96, 0.32);
+            color: var(--color-success);
+        }
+
+        .toast-error {
+            background: rgba(231, 76, 60, 0.14);
+            border: 1px solid rgba(231, 76, 60, 0.32);
+            color: var(--color-danger);
+        }
+
+        .toast-warning {
+            background: var(--color-warning-soft);
+            border: 1px solid rgba(243, 156, 18, 0.32);
+            color: var(--color-warning);
+        }
+
+        .toast-info {
+            background: var(--color-gold-dim);
+            border: 1px solid var(--color-border-hover);
+            color: var(--color-gold);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           LOADER / SPINNER
+           ════════════════════════════════════════════════════════════════════ */
+        .spinner {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(212, 175, 55, 0.22);
+            border-top-color: var(--color-gold);
+            border-radius: 50%;
+            animation: spin-anim 0.55s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin-anim { to { transform: rotate(360deg); } }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--color-background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            z-index: 9999;
+            transition: opacity var(--transition-base);
+        }
+
+        .page-loader.is-hidden { opacity: 0; pointer-events: none; }
+        .page-loader .loader-logo { font-size: 2.5rem; animation: pulse-anim 1.5s ease-in-out infinite; }
+        .page-loader .loader-text { font-size: 0.85rem; color: var(--color-text-muted); }
+
+        @keyframes pulse-anim {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.6; transform: scale(0.95); }
+        }
+
+        /* ════════════════════════════════════════════════════════════════════
+           SECURITY INFO BOX
+           ════════════════════════════════════════════════════════════════════ */
+        .security-info-box {
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-medium);
+            padding: 12px 14px;
+            font-size: 0.77rem;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        .security-info-box strong { color: var(--color-gold-soft); }
+        .security-info-box code { color: var(--color-gold); font-size: 0.82em; }
+
+        /* ════════════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ════════════════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .main-wrapper { padding: 14px 16px; }
+            .form-row-2, .form-row-3 { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .data-table thead { display: none; }
+            .navbar { padding: 0 16px; }
+            .navbar-user-info .user-role { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE LOADER -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-logo">🍽️</div>
+        <div class="loader-text">Chargement du dashboard…</div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-icon">♟</span>
+            AngelCall SuperAdmin
+            <span class="brand-version">V13.2.2</span>
+        </div>
+        <div class="navbar-spacer"></div>
+        <div class="navbar-user-info">
+            <span>Connecté : <span class="user-name" id="navUserName">—</span></span>
+            <span class="user-role" id="navUserRole">—</span>
+        </div>
+        <button class="btn-logout" onclick="AngelCall.Api.logout()">⏻ Déconnexion</button>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main-wrapper">
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">—</div>
+                <div class="stat-label">Total restaurants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statActive" style="color: var(--color-success);">—</div>
+                <div class="stat-label">Actifs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statInactive" style="color: var(--color-text-muted);">—</div>
+                <div class="stat-label">Inactifs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statPage" style="color: var(--color-info);">—</div>
+                <div class="stat-label">Cette page</div>
+            </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="page-toolbar">
+            <div class="page-toolbar-title">🍽️ Gestion des Restaurants</div>
+            <div class="search-box">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="searchInput"
+                    placeholder="Rechercher un restaurant…"
+                    style="width: 260px;"
+                />
+            </div>
+            <button class="btn btn-secondary btn-small" id="btnRefreshAnalytics" onclick="AngelCall.Api.refreshAnalytics()">
+                ↻ Rafraîchir analytics
+            </button>
+            <button class="btn btn-primary" onclick="AngelCall.UI.openCreateModal()">
+                + Nouveau restaurant
+            </button>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Restaurant</th>
+                        <th>Slug</th>
+                        <th>Téléphone</th>
+                        <th>Ville</th>
+                        <th>Provider IA</th>
+                        <th>Statut</th>
+                        <th>Créé le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="restaurantsTableBody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="table-empty-state">
+                                <span class="empty-icon">⏳</span>
+                                <p class="empty-message">Chargement des données…</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination" id="paginationContainer"></div>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL — RESTAURANT EDITOR
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="restaurantModalOverlay" onclick="AngelCall.UI.handleOverlayClick(event,'restaurantModalOverlay')">
+        <div class="modal-dialog">
+
+            <div class="modal-header">
+                <span class="modal-icon">🍽️</span>
+                <h3 class="modal-title" id="restaurantModalTitle">Nouveau Restaurant</h3>
+                <button class="modal-close-btn" onclick="AngelCall.UI.closeRestaurantModal()" title="Fermer">✕</button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- TABS NAV -->
+                <div class="tabs-nav">
+                    <button class="tab-btn is-active" onclick="AngelCall.UI.switchTab(0)">🏠 Identité</button>
+                    <button class="tab-btn" onclick="AngelCall.UI.switchTab(1)">📅 Réservations</button>
+                    <button class="tab-btn" onclick="AngelCall.UI.switchTab(2)">💬 SMS</button>
+                    <button class="tab-btn" onclick="AngelCall.UI.switchTab(3)">🤖 IA Vocale</button>
+                    <button class="tab-btn" onclick="AngelCall.UI.switchTab(4)">🕐 Horaires</button>
+                    <button class="tab-btn" onclick="AngelCall.UI.switchTab(5)">👤 Compte Patron</button>
+                </div>
+
+                <div class="tabs-content">
+
+                    <!-- ── TAB 0 : IDENTITÉ ── -->
+                    <div class="tab-panel is-active" id="tabPanel0">
+
+                        <div class="section-title">Informations générales</div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fname">Nom du restaurant <span class="required-star">*</span></label>
+                                <input type="text" class="form-control" id="fname" placeholder="Ex : Le Bistrot Parisien" oninput="AngelCall.Form.autoGenerateSlug(); AngelCall.State.markDirty();" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fslug">Slug <span class="required-star">*</span></label>
+                                <input type="text" class="form-control" id="fslug" placeholder="ex-bistrot-parisien" />
+                            </div>
+                        </div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label" for="fphonenumber">Téléphone E.164 <span class="required-star">*</span></label>
+                                <input type="tel" class="form-control" id="fphonenumber" placeholder="+33612345678" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="femail">Email</label>
+                                <input type="email" class="form-control" id="femail" placeholder="contact@restaurant.fr" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="faveragebasket">Panier moyen (€)</label>
+                                <input type="number" class="form-control" id="faveragebasket" placeholder="45" min="0" step="1" />
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="faddress">Adresse</label>
+                                <input type="text" class="form-control" id="faddress" placeholder="12 rue de la Paix" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fcity">Ville</label>
+                                <input type="text" class="form-control" id="fcity" placeholder="Paris" />
+                            </div>
+                        </div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label" for="fpostalcode">Code postal</label>
+                                <input type="text" class="form-control" id="fpostalcode" placeholder="75001" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fcountry">Pays</label>
+                                <input type="text" class="form-control" id="fcountry" value="France" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="ftimezone">Fuseau horaire</label>
+                                <select class="form-control" id="ftimezone">
+                                    <option value="Europe/Paris">Europe/Paris</option>
+                                    <option value="Europe/London">Europe/London</option>
+                                    <option value="America/New_York">America/New_York</option>
+                                    <option value="America/Los_Angeles">America/Los_Angeles</option>
+                                    <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                    <option value="Asia/Dubai">Asia/Dubai</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fwebsiteurl">Site web</label>
+                                <input type="url" class="form-control" id="fwebsiteurl" placeholder="https://restaurant.fr" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fmapslink">Lien Google Maps</label>
+                                <input type="url" class="form-control" id="fmapslink" placeholder="https://maps.google.com/..." />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fdescriptionshort">Description courte</label>
+                            <textarea class="form-control" id="fdescriptionshort" rows="2" placeholder="Restaurant gastronomique au cœur de Paris…"></textarea>
+                        </div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label" for="fdefaultlanguage">Langue par défaut</label>
+                                <select class="form-control" id="fdefaultlanguage">
+                                    <option value="fr">Français</option>
+                                    <option value="en">English</option>
+                                    <option value="es">Español</option>
+                                    <option value="it">Italiano</option>
+                                    <option value="de">Deutsch</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fsoftwareprovider">Logiciel de caisse</label>
+                                <select class="form-control" id="fsoftwareprovider">
+                                    <option value="none">Aucun</option>
+                                    <option value="zenchef">Zenchef</option>
+                                    <option value="thefork">TheFork</option>
+                                    <option value="resy">Resy</option>
+                                    <option value="opentable">OpenTable</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fescalationphonenumber">Tél. escalade E.164</label>
+                                <input type="tel" class="form-control" id="fescalationphonenumber" placeholder="+33612345678" />
+                            </div>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">API Externe (Réservations)</div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Synchronisation API externe activée</div>
+                                <div class="toggle-row-sublabel">Zenchef / TheFork / Resy…</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fexternalapienabled" onchange="toggleConditionalPanel('fexternalapienabled', 'conditionalExternalApi')" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="conditional-sub is-hidden" id="conditionalExternalApi">
+                            <div class="conditional-panel">
+                                <div class="form-row-2">
+                                    <div class="form-group">
+                                        <label class="form-label" for="fexternalapiprovider">Provider API</label>
+                                        <select class="form-control" id="fexternalapiprovider">
+                                            <option value="">— Choisir —</option>
+                                            <option value="zenchef">Zenchef</option>
+                                            <option value="thefork">TheFork</option>
+                                            <option value="resy">Resy</option>
+                                            <option value="opentable">OpenTable</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="fexternalapikey">Clé API externe</label>
+                                        <input type="password" class="form-control" id="fexternalapikey" placeholder="Laisser vide pour conserver l'actuelle" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Statut</div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Restaurant actif</div>
+                                <div class="toggle-row-sublabel">Désactiver empêche toute prise d'appel IA</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fisactive" checked />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                    </div><!-- /tab-panel 0 -->
+
+                    <!-- ── TAB 1 : RÉSERVATIONS ── -->
+                    <div class="tab-panel" id="tabPanel1">
+
+                        <div class="section-title">Capacité & Créneaux</div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label" for="fmaxcoversperservice">Couverts max / service</label>
+                                <input type="number" class="form-control" id="fmaxcoversperservice" min="1" max="9999" placeholder="40" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fmaxguestsperslot">Convives max / créneau</label>
+                                <input type="number" class="form-control" id="fmaxguestsperslot" min="1" max="999" placeholder="20" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fmaxsimultaneousbookings">Réservations simultanées max</label>
+                                <input type="number" class="form-control" id="fmaxsimultaneousbookings" min="1" max="999" placeholder="20" />
+                            </div>
+                        </div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label" for="fslotdurationminutes">Durée créneau (min)</label>
+                                <select class="form-control" id="fslotdurationminutes">
+                                    <option value="15">15 min</option>
+                                    <option value="30" selected>30 min</option>
+                                    <option value="45">45 min</option>
+                                    <option value="60">60 min</option>
+                                    <option value="90">90 min</option>
+                                    <option value="120">120 min</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fbookingadvancedays">Réservation à l'avance (jours)</label>
+                                <input type="number" class="form-control" id="fbookingadvancedays" min="1" max="365" placeholder="30" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fcancellationhours">Annulation avant (heures)</label>
+                                <input type="number" class="form-control" id="fcancellationhours" min="0" max="720" placeholder="24" />
+                            </div>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Grands Groupes</div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="flargegroupthreshold">Seuil grand groupe (convives)</label>
+                                <input type="number" class="form-control" id="flargegroupthreshold" min="1" max="999" placeholder="10" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fminguestslargegroup">Min convives grand groupe</label>
+                                <input type="number" class="form-control" id="fminguestslargegroup" min="1" max="999" placeholder="10" />
+                            </div>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Surbooking</div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Autoriser le surbooking</div>
+                                <div class="toggle-row-sublabel">Accepte des réservations au-delà de la capacité nominale</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fallowoverbooking" onchange="toggleConditionalPanel('fallowoverbooking', 'conditionalOverbooking')" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="conditional-sub is-hidden" id="conditionalOverbooking">
+                            <div class="conditional-panel">
+                                <div class="form-group">
+                                    <label class="form-label" for="foverbookingpercentage">Pourcentage surbooking (%)</label>
+                                    <input type="number" class="form-control" id="foverbookingpercentage" min="0" max="100" placeholder="10" style="max-width: 160px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Rappels SMS natifs</div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Rappels SMS activés</div>
+                                <div class="toggle-row-sublabel">Envoi automatique avant la réservation</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fremindersenabled" onchange="toggleConditionalPanel('fremindersenabled', 'conditionalSmsReminder')" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="conditional-sub is-hidden" id="conditionalSmsReminder">
+                            <div class="conditional-panel">
+                                <div class="form-group">
+                                    <label class="form-label" for="freminderhoursbefore">Heures avant la réservation</label>
+                                    <input type="number" class="form-control" id="freminderhoursbefore" min="1" max="168" placeholder="24" style="max-width: 160px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /tab-panel 1 -->
+
+                    <!-- ── TAB 2 : SMS ── -->
+                    <div class="tab-panel" id="tabPanel2">
+
+                        <div class="section-title">Configuration SMS</div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fsmsprovider">Provider SMS</label>
+                                <select class="form-control" id="fsmsprovider">
+                                    <option value="twilio">Twilio</option>
+                                    <option value="vonage">Vonage</option>
+                                    <option value="ovh">OVH</option>
+                                    <option value="none">Désactivé</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fsmssenderid">Sender ID / Numéro</label>
+                                <input type="text" class="form-control" id="fsmssenderid" placeholder="AngelCall ou +33..." />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fsmsapikey">Clé API SMS</label>
+                            <input type="password" class="form-control" id="fsmsapikey" placeholder="Laisser vide pour conserver l'actuelle" />
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Déclencheurs SMS</div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">SMS à la création</div>
+                                <div class="toggle-row-sublabel">Envoyer un SMS de confirmation lors de la création</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fsmsoncreate" checked />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">SMS à l'annulation</div>
+                                <div class="toggle-row-sublabel">Envoyer un SMS lors de l'annulation</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fsmsoncancel" checked />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">SMS à la modification</div>
+                                <div class="toggle-row-sublabel">Envoyer un SMS lors d'une modification</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fsmsonmodify" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Templates SMS</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fsmsconfirmationtpl">Template confirmation</label>
+                            <textarea class="form-control" id="fsmsconfirmationtpl" rows="3" placeholder="Votre réservation chez {restaurant_name} le {date} à {time} pour {guests} personnes est confirmée."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fsmsremindertpl">Template rappel</label>
+                            <textarea class="form-control" id="fsmsremindertpl" rows="3" placeholder="Rappel : votre réservation chez {restaurant_name} est demain à {time}."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fsmscancellationtpl">Template annulation</label>
+                            <textarea class="form-control" id="fsmscancellationtpl" rows="3" placeholder="Votre réservation chez {restaurant_name} le {date} a bien été annulée."></textarea>
+                        </div>
+
+                    </div><!-- /tab-panel 2 -->
+
+                    <!-- ── TAB 3 : IA VOCALE ── -->
+                    <div class="tab-panel" id="tabPanel3">
+
+                        <div class="section-title">Moteur LLM</div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label class="form-label" for="fllmprovider">Provider LLM</label>
+                                <select class="form-control" id="fllmprovider">
+                                    <option value="groq">Groq</option>
+                                    <option value="openai">OpenAI</option>
+                                    <option value="anthropic">Anthropic</option>
+                                    <option value="mistral">Mistral</option>
+                                    <option value="gemini">Gemini</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fllmmodel">Modèle</label>
+                                <input type="text" class="form-control" id="fllmmodel" placeholder="llama3-8b-8192" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="failanguage">Langue IA</label>
+                                <select class="form-control" id="failanguage">
+                                    <option value="fr">Français</option>
+                                    <option value="en">English</option>
+                                    <option value="es">Español</option>
+                                    <option value="it">Italiano</option>
+                                    <option value="de">Deutsch</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fllmapikey">Clé API LLM</label>
+                            <input type="password" class="form-control" id="fllmapikey" placeholder="Laisser vide pour conserver l'actuelle" />
+                            <small id="llmapikey-hint" style="display:none; color: var(--color-success); font-size: 0.75rem; margin-top: 4px;">
+                                ✅ Clé API déjà configurée en base.
+                            </small>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fllmmaxtokens">Max tokens</label>
+                                <input type="number" class="form-control" id="fllmmaxtokens" min="64" max="32768" placeholder="1024" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fllmtemperature">Température (0.0 – 2.0)</label>
+                                <input type="number" class="form-control" id="fllmtemperature" min="0" max="2" step="0.1" placeholder="0.7" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fpersonality">Personnalité IA</label>
+                            <select class="form-control" id="fpersonality">
+                                <option value="professional">Professionnel</option>
+                                <option value="friendly">Chaleureux & Amical</option>
+                                <option value="formal">Formel & Élégant</option>
+                                <option value="casual">Décontracté</option>
+                                <option value="concise">Concis & Direct</option>
+                            </select>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Prompts & Messages</div>
+
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                                <label class="form-label" for="fsystemprompt" style="margin-bottom: 0;">Système Prompt</label>
+                                <button class="btn btn-ghost btn-small" id="btnGeneratePrompt" onclick="AngelCall.Api.generateAIPrompt()">✨ Générer via IA</button>
+                            </div>
+                            <textarea class="form-control" id="fsystemprompt" rows="5" placeholder="Tu es l'assistant vocal de {restaurant_name}…" oninput="updateCharCounter('fsystemprompt', 'ccSystemprompt', 8000)"></textarea>
+                            <div class="char-counter" id="ccSystemprompt">0 / 8000</div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fwelcomemessage">Message d'accueil</label>
+                                <textarea class="form-control" id="fwelcomemessage" rows="3" placeholder="Bonjour, bienvenue chez {restaurant_name}…" oninput="updateCharCounter('fwelcomemessage', 'ccWelcomemessage', 500)"></textarea>
+                                <div class="char-counter" id="ccWelcomemessage">0 / 500</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fclosingmessage">Message de clôture</label>
+                                <textarea class="form-control" id="fclosingmessage" rows="3" placeholder="Merci de votre appel, à bientôt…" oninput="updateCharCounter('fclosingmessage', 'ccClosingmessage', 500)"></textarea>
+                                <div class="char-counter" id="ccClosingmessage">0 / 500</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fcustompronunciation">Prononciations personnalisées (JSON)</label>
+                            <textarea class="form-control" id="fcustompronunciation" rows="3" placeholder='{"Côte de Bœuf": "côte de bœuf", "Château Pétrus": "château pétrus"}'></textarea>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Téléphonie & Fallback</div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="ftwilinumber">Numéro Twilio (E.164)</label>
+                                <input type="tel" class="form-control" id="ftwilinumber" placeholder="+33..." />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="ffallbackphone">Tél. fallback (E.164)</label>
+                                <input type="tel" class="form-control" id="ffallbackphone" placeholder="+33..." />
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fsilencetimeoutsec">Timeout silence (sec)</label>
+                                <input type="number" class="form-control" id="fsilencetimeoutsec" min="1" max="30" placeholder="3" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fmaxcalldurationsec">Durée max appel (sec)</label>
+                                <input type="number" class="form-control" id="fmaxcalldurationsec" min="30" max="3600" placeholder="300" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="ffallbackmessage">Message fallback</label>
+                            <textarea class="form-control" id="ffallbackmessage" rows="2" placeholder="Je vous transfère vers notre équipe…"></textarea>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 18px;">Fonctionnalités IA</div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">SMS post-appel activé</div>
+                                <div class="toggle-row-sublabel">Envoyer un récapitulatif SMS après chaque appel IA</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fenablesms" checked />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Alertes grands groupes</div>
+                                <div class="toggle-row-sublabel">Notifier le responsable pour les groupes dépassant le seuil</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fenablelargegroupalert" checked />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Rappels IA activés</div>
+                                <div class="toggle-row-sublabel">L'IA envoie des rappels automatiques avant la réservation</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fenablereminders" checked onchange="toggleConditionalPanel('fenablereminders', 'conditionalIaReminder')" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="conditional-sub" id="conditionalIaReminder">
+                            <div class="conditional-panel">
+                                <div class="form-group">
+                                    <label class="form-label" for="fiareminderhoursbefore">Heures avant (rappel IA)</label>
+                                    <input type="number" class="form-control" id="fiareminderhoursbefore" min="1" max="168" placeholder="24" style="max-width: 160px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rgpd-panel">
+                            <div class="section-title" style="margin-top: 0; margin-bottom: 10px;">RGPD — Consentement Marketing</div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Demander le consentement marketing</div>
+                                    <div class="toggle-row-sublabel">L'IA pose la question de consentement en fin d'appel</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="faskmarketingconsent" onchange="toggleConditionalPanel('faskmarketingconsent', 'conditionalMarketingPrompt')" />
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="conditional-sub is-hidden" id="conditionalMarketingPrompt">
+                                <div class="form-group" style="margin-top: 12px;">
+                                    <label class="form-label" for="fmarketingprompt">Prompt marketing</label>
+                                    <textarea class="form-control" id="fmarketingprompt" rows="2" placeholder="Souhaitez-vous recevoir nos offres et actualités ?" oninput="updateCharCounter('fmarketingprompt', 'ccMarketingprompt', 300)"></textarea>
+                                    <div class="char-counter" id="ccMarketingprompt">0 / 300</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /tab-panel 3 -->
+
+                    <!-- ── TAB 4 : HORAIRES ── -->
+                    <div class="tab-panel" id="tabPanel4">
+
+                        <div class="section-title">Horaires d'ouverture</div>
+
+                        <table class="hours-table">
+                            <thead>
+                                <tr>
+                                    <th>Jour</th>
+                                    <th>Ouvert</th>
+                                    <th>Ouverture</th>
+                                    <th>Fermeture</th>
+                                    <th>Capacité max</th>
+                                    <th>Intervalle (min)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hoursTableBody">
+                            </tbody>
+                        </table>
+
+                        <div class="hours-bulk-actions">
+                            <button class="btn btn-secondary btn-small" onclick="applyBulkHours('12:00', '23:00')">⚡ Tous midi–23h</button>
+                            <button class="btn btn-secondary btn-small" onclick="applyBulkHours('08:00', '22:00')">⚡ Tous 8h–22h</button>
+                            <button class="btn btn-secondary btn-small" onclick="AngelCall.Hours.closeWeekend()">🔒 Fermer week-end</button>
+                        </div>
+
+                    </div><!-- /tab-panel 4 -->
+
+                    <!-- ── TAB 5 : COMPTE PATRON ── -->
+                    <div class="tab-panel" id="tabPanel5">
+
+                        <div class="patron-warning-banner" id="patronEditWarning" style="display: none;">
+                            <span>⚠️</span>
+                            <span>En mode édition, laisser le mot de passe vide pour le conserver. Remplir uniquement pour le modifier.</span>
+                        </div>
+
+                        <div class="section-title">Identité du patron</div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="fpatronfullname">Nom complet</label>
+                                <input type="text" class="form-control" id="fpatronfullname" placeholder="Jean Dupont" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fpatronusername">
+                                    Identifiant de connexion
+                                    <span class="required-star" id="patronUsernameStar">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="fpatronusername" placeholder="jean.dupont" autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fpatronpassword">
+                                Mot de passe
+                                <span class="required-star" id="patronPasswordStar">*</span>
+                            </label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="password" class="form-control" id="fpatronpassword" placeholder="••••••••••••" autocomplete="new-password" />
+                                <button class="btn btn-secondary btn-small" type="button" onclick="AngelCall.UI.togglePasswordVisibility()" style="flex-shrink: 0;">👁</button>
+                            </div>
+                        </div>
+
+                        <div class="security-info-box" style="margin-top: 16px;">
+                            <strong>🔐 Sécurité :</strong> Le mot de passe est haché en <code>bcrypt</code> côté serveur avant stockage.
+                            L'identifiant de connexion doit être unique dans toute la plateforme.
+                            Ce compte permet au patron d'accéder à son tableau de bord personnel.
+                        </div>
+
+                    </div><!-- /tab-panel 5 -->
+
+                </div><!-- /tabs-content -->
+            </div><!-- /modal-body -->
+
+            <div class="modal-footer">
+                <span class="save-status-text" id="saveStatusText"></span>
+                <button class="btn btn-secondary" onclick="AngelCall.UI.closeRestaurantModal()">Annuler</button>
+                <button class="btn btn-primary" id="btnSaveRestaurant" onclick="AngelCall.Api.saveRestaurant()">💾 Enregistrer</button>
+            </div>
+
+        </div><!-- /modal-dialog -->
+    </div><!-- /modal-overlay -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONFIRM DELETE DIALOG
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="confirm-overlay" id="confirmDeleteOverlay" onclick="AngelCall.UI.handleOverlayClick(event,'confirmDeleteOverlay')">
+        <div class="confirm-dialog">
+            <div class="modal-header">
+                <span class="modal-icon">🗑️</span>
+                <h3 class="modal-title">Confirmer la suppression</h3>
+                <button class="modal-close-btn" onclick="AngelCall.UI.closeConfirmDelete()">✕</button>
+            </div>
+            <div class="confirm-body" id="confirmDeleteBody">
+                Êtes-vous sûr de vouloir supprimer ce restaurant ?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="AngelCall.UI.closeConfirmDelete()">Annuler</button>
+                <button class="btn btn-danger" id="btnConfirmDelete" onclick="AngelCall.Api.executeDelete()">🗑️ Supprimer définitivement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         JAVASCRIPT
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <script>
+'use strict';
+   ANGELCALL SUPERADMIN — V13.2 REFACTORED
+   Architecture : Namespace Pattern
+   Modules : AngelCall.Config | .State | .Api | .UI | .Form | .Hours
+   Payload camelCase garanti — structure strictement identique à V13.2 original
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+
+/* ─── CONFIG ──────────────────────────────────────────────────────────────── */
+const AngelCall = {};
+
+AngelCall.Config = {
+    API_BASE_URL : window.ANGELCALL_API_URL || 'https://n8n.angelcall.fr/webhook',
+    PAGE_SIZE    : 50,
+    DAY_NAMES    : ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche']
+};
+
+/* ─── STATE ───────────────────────────────────────────────────────────────── */
+AngelCall.State = {
+    allRestaurants   : [],
+    totalRestaurants : 0,
+    totalActive      : 0,   // Source unique : données brutes API (pas de recalcul local)
+    totalInactive    : 0,   // Source unique : données brutes API (pas de recalcul local)
+    currentOffset    : 0,
+    editingId        : null,
+    deletingId       : null,
+    isSaving         : false,
+    isFormDirty      : false,
+    editingUpdatedAt : null,
+    markDirty()      { this.isFormDirty = true; }
+};
+
+/* ─── HELPERS PARTAGÉS ────────────────────────────────────────────────────── */
+AngelCall._h = {
+    /** Échappe les caractères HTML dangereux. */
+    escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    },
+
+    /** Formate une date ISO en dd/mm/yyyy (locale fr-FR). */
+    formatDateFR(dateStr) {
+        if (!dateStr) return '—';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return this.escapeHtml(String(dateStr));
+            return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+        } catch { return this.escapeHtml(String(dateStr)); }
+    },
+
+    /** Lit la valeur d'un champ de formulaire par son id. */
+    getFieldValue(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        return el.type === 'checkbox' ? el.checked : el.value;
+    },
+
+    /** Définit la valeur d'un champ de formulaire par son id. */
+    setFieldValue(id, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === 'checkbox') { el.checked = Boolean(value); }
+        else { el.value = (value !== null && value !== undefined) ? value : ''; }
+    }
+};
+
+/* ─── API MODULE ──────────────────────────────────────────────────────────── */
+AngelCall.Api = {
+
+    /** Wrapper fetch centralisé : injecte credentials, gère le 401. */
+    async _fetch(url, options = {}) {
+        const merged = {
+            credentials : 'include',
+            ...options,
+            headers : { 'Content-Type': 'application/json', ...(options.headers || {}) }
+        };
+        const response = await fetch(url, merged);
+        if (response.status === 401) {
+            AngelCall.UI.showToast('Session expirée. Redirection…', 'warning');
+            setTimeout(() => { window.location.href = '/login.html'; }, 1500);
+            return null;
+        }
+        return response;
+    },
+
+    /** Vérifie la session RBAC superadmin et injecte les infos dans la navbar. */
+    async checkSession() {
+        try {
+            const res  = await fetch(`/admin-apisession`, { method:'GET', credentials:'include' });
+            const data = await res.json();
+            if (!data.valid) { window.location.href = '/login.html'; return; }
+            if (data.role && data.role !== 'superadmin') { window.location.href = '/patron-dashboard.html'; return; }
+            document.getElementById('navUserName').textContent = data.fullname || data.username || '—';
+            document.getElementById('navUserRole').textContent = data.role || '—';
+        } catch (e) {
+            console.error('Session check failed:', e);
+            window.location.href = '/login.html';
+        }
+    },
+
+    /** Déconnexion propre + redirection. */
+    async logout() {
+        try { await fetch(`/admin-logout`, { method:'POST', credentials:'include' }); }
+        catch(e) { console.error('Logout error:', e); }
+        finally  { window.location.href = '/login.html'; }
+    },
+
+    /**
+     * Charge la liste paginée/filtrée des restaurants.
+     * Met à jour State puis rafraîchit la vue.
+     * ✅ totalActive / totalInactive : source unique = données brutes API.
+     */
+    async loadRestaurants(offset = 0, query = '') {
+        const S    = AngelCall.State;
+        S.currentOffset = offset;
+        const q   = (query || '').trim();
+        const url = `/admin-apirestaurants?offset=${offset}` + (q ? `&q=${encodeURIComponent(q)}` : '');
+        try {
+            const res  = await this._fetch(url, { method:'GET' });
+            if (!res) return;
+            const data = await res.json();
+            S.allRestaurants   = data.restaurants || [];
+            S.totalRestaurants = data.total        || 0;
+            S.totalActive      = parseInt(data.totalactive,   10) || 0;
+            S.totalInactive    = parseInt(data.totalinactive, 10) || 0;
+            AngelCall.UI.renderRestaurantsTable();
+            AngelCall.UI.renderPagination();
+            AngelCall.UI.updateStats();
+        } catch (e) {
+            console.error('loadRestaurants error:', e);
+            document.getElementById('restaurantsTableBody').innerHTML =
+                `<tr><td colspan="8"><div class="table-empty-state">
+                    <span class="empty-icon">⚠️</span>
+                    <p class="empty-message">Erreur : ${AngelCall._h.escapeHtml(e.message)}</p>
+                </div></td></tr>`;
+            AngelCall.UI.showToast('Erreur de chargement des restaurants.', 'error');
+        }
+    },
+
+    /**
+     * Sauvegarde (création ou update) d'un restaurant.
+     * ⚠️ Payload camelCase strict — NE PAS MODIFIER LES CLÉS.
+     */
+    async saveRestaurant() {
+        const S    = AngelCall.State;
+        const h    = AngelCall._h;
+
+        if (S.isSaving) return;
+        S.isSaving = true;
+
+        const nameVal  = document.getElementById('fname').value.trim();
+        const slugVal  = document.getElementById('fslug').value.trim();
+        const phoneVal = document.getElementById('fphonenumber').value.trim();
+        const E164     = /^\+[1-9]\d{1,14}$/;
+
+        if (!nameVal) {
+            AngelCall.UI.showToast('Le nom du restaurant est requis.','error');
+            AngelCall.UI.switchTab(0); S.isSaving = false; return;
+        }
+        if (!slugVal) {
+            AngelCall.UI.showToast('Le slug est requis.','error');
+            AngelCall.UI.switchTab(0); S.isSaving = false; return;
+        }
+        if (!E164.test(phoneVal)) {
+            AngelCall.UI.showToast('Format E.164 requis pour le téléphone (ex: +33612345678)','error');
+            AngelCall.UI.switchTab(0); S.isSaving = false; return;
+        }
+        const escPhoneVal = document.getElementById('fescalationphonenumber').value.trim();
+        const fbPhoneVal  = document.getElementById('ffallbackphone').value.trim();
+        if (escPhoneVal && !E164.test(escPhoneVal)) {
+            AngelCall.UI.showToast("Format E.164 requis pour le téléphone d'escalade",'error');
+            AngelCall.UI.switchTab(0); S.isSaving = false; return;
+        }
+        if (fbPhoneVal && !E164.test(fbPhoneVal)) {
+            AngelCall.UI.showToast('Format E.164 requis pour le téléphone de fallback','error');
+            AngelCall.UI.switchTab(3); S.isSaving = false; return;
+        }
+
+        const btn        = document.getElementById('btnSaveRestaurant');
+        const statusText = document.getElementById('saveStatusText');
+        btn.disabled     = true;
+        btn.innerHTML    = '<span class="spinner"></span> Enregistrement…';
+        statusText.textContent = '';
+
+        let customPronunciation = null;
+        const pronRaw = h.getFieldValue('fcustompronunciation');
+        if (pronRaw && pronRaw.trim()) {
+            try { customPronunciation = JSON.parse(pronRaw); }
+            catch {
+                AngelCall.UI.showToast('❌ JSON des prononciations invalide.','error');
+                btn.disabled = false; btn.innerHTML = '💾 Enregistrer';
+                S.isSaving = false; return;
+            }
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           PAYLOAD — camelCase strict, structure identique à V13.2 original
+           NE PAS MODIFIER LES CLÉS — le back-end n8n est sensible à la casse
+           ══════════════════════════════════════════════════════════════════ */
+        const payload = {
+            clientUpdatedat         : S.editingUpdatedAt || null,
+            id                      : S.editingId || null,
+            name                    : nameVal,
+            slug                    : slugVal,
+            phonenumber             : phoneVal,
+            email                   : h.getFieldValue('femail')                || null,
+            websiteurl              : h.getFieldValue('fwebsiteurl')           || null,
+            address                 : h.getFieldValue('faddress')              || null,
+            city                    : h.getFieldValue('fcity')                 || null,
+            postalcode              : h.getFieldValue('fpostalcode')           || null,
+            country                 : h.getFieldValue('fcountry')              || 'France',
+            mapslink                : h.getFieldValue('fmapslink')             || null,
+            descriptionshort        : h.getFieldValue('fdescriptionshort')     || null,
+            timezone                : h.getFieldValue('ftimezone')             || 'Europe/Paris',
+            defaultlanguage         : h.getFieldValue('fdefaultlanguage')      || 'fr',
+            softwareprovider        : h.getFieldValue('fsoftwareprovider')     || 'none',
+            externalapikey          : h.getFieldValue('fexternalapikey')       || null,
+            externalapiprovider     : h.getFieldValue('fexternalapiprovider')  || null,
+            externalapienabled      : h.getFieldValue('fexternalapienabled'),
+            averagebasket           : parseFloat(h.getFieldValue('faveragebasket'))         || 0,
+            escalationphonenumber   : escPhoneVal                                           || null,
+            isactive                : h.getFieldValue('fisactive'),
+            maxcoversperservice     : parseInt(h.getFieldValue('fmaxcoversperservice'))     || 40,
+            maxguestsperslot        : parseInt(h.getFieldValue('fmaxguestsperslot'))        || 20,
+            maxsimultaneousbookings : parseInt(h.getFieldValue('fmaxsimultaneousbookings')) || 20,
+            slotdurationminutes     : parseInt(h.getFieldValue('fslotdurationminutes'))     || 30,
+            bookingadvancedays      : parseInt(h.getFieldValue('fbookingadvancedays'))      || 30,
+            cancellationhours       : parseInt(h.getFieldValue('fcancellationhours'))       || 24,
+            largegroupthreshold     : parseInt(h.getFieldValue('flargegroupthreshold'))     || 10,
+            minguestslargegroup     : parseInt(h.getFieldValue('fminguestslargegroup'))     || 10,
+            overbookingpercentage   : parseInt(h.getFieldValue('foverbookingpercentage'))   || 0,
+            allowoverbooking        : h.getFieldValue('fallowoverbooking'),
+            remindersenabled        : h.getFieldValue('fremindersenabled'),
+            reminderhoursbefore     : h.getFieldValue('freminderhoursbefore') ? parseInt(h.getFieldValue('freminderhoursbefore')) : null,
+            smsprovider             : h.getFieldValue('fsmsprovider'),
+            smsapikey               : h.getFieldValue('fsmsapikey')           || null,
+            smssenderid             : h.getFieldValue('fsmssenderid')         || null,
+            smsconfirmationtpl      : h.getFieldValue('fsmsconfirmationtpl')   || null,
+            smsremindertpl          : h.getFieldValue('fsmsremindertpl')       || null,
+            smscancellationtpl      : h.getFieldValue('fsmscancellationtpl')   || null,
+            smsoncreate             : h.getFieldValue('fsmsoncreate'),
+            smsoncancel             : h.getFieldValue('fsmsoncancel'),
+            smsonmodify             : h.getFieldValue('fsmsonmodify'),
+            businesshours           : AngelCall.Hours.getBusinessHoursPayload(),
+            patronAccount : {
+                fullname : document.getElementById('fpatronfullname').value.trim() || null,
+                username : document.getElementById('fpatronusername').value.trim() || null,
+                password : document.getElementById('fpatronpassword').value        || null
+            },
+            ia : {
+                llmprovider           : h.getFieldValue('fllmprovider'),
+                llmmodel              : h.getFieldValue('fllmmodel')              || 'llama3-8b-8192',
+                llmapikey             : h.getFieldValue('fllmapikey')             || null,
+                llmmaxtokens          : parseInt(h.getFieldValue('fllmmaxtokens'))     || 1024,
+                llmtemperature        : parseFloat(h.getFieldValue('fllmtemperature')) || 0.7,
+                personality           : h.getFieldValue('fpersonality'),
+                ailanguage            : h.getFieldValue('failanguage')            || 'fr',
+                systemprompt          : h.getFieldValue('fsystemprompt')          || null,
+                welcomemessage        : h.getFieldValue('fwelcomemessage')        || null,
+                closingmessage        : h.getFieldValue('fclosingmessage')        || null,
+                custompronunciation   : customPronunciation,
+                enablesms             : h.getFieldValue('fenablesms'),
+                enablereminders       : h.getFieldValue('fenablereminders'),
+                enablelargegroupalert : h.getFieldValue('fenablelargegroupalert'),
+                reminderhoursbefore   : h.getFieldValue('fiareminderhoursbefore') ? parseInt(h.getFieldValue('fiareminderhoursbefore')) : null,
+                silencetimeoutsec     : parseInt(h.getFieldValue('fsilencetimeoutsec'))  || 3,
+                maxcalldurationsec    : parseInt(h.getFieldValue('fmaxcalldurationsec')) || 300,
+                fallbackphone         : fbPhoneVal                                        || null,
+                fallbackmessage       : h.getFieldValue('ffallbackmessage')       || null,
+                twilionumber          : h.getFieldValue('ftwilinumber')           || null,
+                askmarketingconsent   : h.getFieldValue('faskmarketingconsent'),
+                marketingprompt       : h.getFieldValue('fmarketingprompt')       || null
+            }
+        };
+
+        try {
+            const res  = await this._fetch(`/admin-save`, { method:'POST', body: JSON.stringify(payload) });
+            if (!res) return;
+            const data = await res.json();
+            if (res.status === 409) {
+                AngelCall.UI.showToast(`❌ Conflit : ${data.error || 'Slug, téléphone ou identifiant déjà utilisé.'}`, 'error');
+                statusText.textContent = data.error || 'Conflit détecté.'; return;
+            }
+            if (res.status === 412) {
+                AngelCall.UI.showToast('⚠️ Données modifiées par un autre utilisateur. Rechargez et réessayez.','warning');
+                statusText.textContent = 'Précondition échouée (conflit de version).'; return;
+            }
+            if (res.status === 422) {
+                AngelCall.UI.showToast(`❌ Validation : ${data.error || 'Payload invalide.'}`, 'error');
+                statusText.textContent = data.error || 'Erreur de validation.'; return;
+            }
+            if (data.success) {
+                S.isFormDirty = false;
+                AngelCall.UI.showToast(S.editingId ? '✅ Restaurant mis à jour.' : '✅ Restaurant créé.', 'success');
+                AngelCall.UI.closeRestaurantModal();
+                await this.loadRestaurants(S.currentOffset);
+            } else {
+                AngelCall.UI.showToast(`❌ ${data.error || "Erreur lors de l'enregistrement."}`, 'error');
+                statusText.textContent = data.error || 'Erreur inconnue.';
+            }
+        } catch (e) {
+            AngelCall.UI.showToast(`❌ Erreur réseau : ${e.message}`, 'error');
+            statusText.textContent = e.message;
+        } finally {
+            S.isSaving       = false;
+            btn.disabled     = false;
+            btn.innerHTML    = '💾 Enregistrer';
+        }
+    },
+
+    /** Suppression définitive d'un restaurant (après confirmation). */
+    async executeDelete() {
+        const S    = AngelCall.State;
+        if (!S.deletingId) return;
+        const btn     = document.getElementById('btnConfirmDelete');
+        btn.disabled  = true;
+        btn.innerHTML = '<span class="spinner"></span> Suppression…';
+        try {
+            const res  = await this._fetch(`/admin-delete`, { method:'POST', body: JSON.stringify({ id: S.deletingId }) });
+            if (!res) return;
+            const data = await res.json();
+            if (data.success) {
+                AngelCall.UI.showToast('✅ Restaurant supprimé.', 'success');
+                AngelCall.UI.closeConfirmDelete();
+                await this.loadRestaurants(S.currentOffset);
+            } else {
+                AngelCall.UI.showToast(`❌ ${data.error || 'Erreur lors de la suppression.'}`, 'error');
+            }
+        } catch (e) {
+            AngelCall.UI.showToast(`❌ Erreur réseau : ${e.message}`, 'error');
+        } finally {
+            btn.disabled  = false;
+            btn.innerHTML = '🗑️ Supprimer définitivement';
+        }
+    },
+
+    /** Génère un system prompt IA via Groq et l'injecte dans #fsystemprompt. */
+    async generateAIPrompt() {
+        const h    = AngelCall._h;
+        const btn  = document.getElementById('btnGeneratePrompt');
+        const orig = btn.textContent;
+        btn.disabled  = true;
+        btn.innerHTML = '<span class="spinner"></span> Génération…';
+        try {
+            const res  = await this._fetch(`/admin-apigenerate-prompt`, {
+                method : 'POST',
+                body   : JSON.stringify({
+                    restaurantName : h.getFieldValue('fname'),
+                    city           : h.getFieldValue('fcity'),
+                    personality    : h.getFieldValue('fpersonality'),
+                    businesshours  : AngelCall.Hours.getBusinessHoursPayload()
+                })
+            });
+            if (!res) return;
+            const data = await res.json();
+            if (data.success && data.prompt) {
+                h.setFieldValue('fsystemprompt', data.prompt);
+                AngelCall.UI.updateCharCounter('fsystemprompt','ccSystemprompt',8000);
+                AngelCall.UI.showToast('✅ Prompt généré avec succès.', 'success');
+            } else {
+                AngelCall.UI.showToast(`❌ ${data.error || 'Erreur lors de la génération.'}`, 'error');
+            }
+        } catch (e) {
+            AngelCall.UI.showToast(`❌ Erreur réseau : ${e.message}`, 'error');
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = orig;
+        }
+    },
+
+    /** Rafraîchit les vues matérialisées d'analytics PostgreSQL. */
+    async refreshAnalytics() {
+        const btn  = document.getElementById('btnRefreshAnalytics');
+        btn.disabled  = true;
+        btn.innerHTML = '<span class="spinner"></span> Rafraîchissement…';
+        AngelCall.UI.showToast('⏳ Rafraîchissement des analytics en cours…', 'info');
+        try {
+            const res  = await this._fetch(`/admin-apirefresh-analytics`, { method:'POST' });
+            if (!res) return;
+            const data = await res.json();
+            if (data.success) { AngelCall.UI.showToast('✅ Vues matérialisées rafraîchies.', 'success'); }
+            else               { AngelCall.UI.showToast(`❌ ${data.error || 'Erreur analytics.'}`, 'error'); }
+        } catch (e) {
+            AngelCall.UI.showToast(`❌ Erreur réseau : ${e.message}`, 'error');
+        } finally {
+            btn.disabled  = false;
+            btn.innerHTML = '🔄 Rafraîchir analytics';
+        }
+    }
+};
+
+/* ─── UI MODULE ───────────────────────────────────────────────────────────── */
+AngelCall.UI = {
+
+    /** Affiche un toast de notification. */
+    showToast(message, type = 'info', duration = 4000) {
+        const container = document.getElementById('toastContainer');
+        const toast     = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<span>${AngelCall._h.escapeHtml(message)}</span>`;
+        toast.addEventListener('click', () => this._dismissToast(toast));
+        container.appendChild(toast);
+        requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('toast-visible')));
+        setTimeout(() => this._dismissToast(toast), duration);
+    },
+
+    _dismissToast(toast) {
+        toast.classList.remove('toast-visible');
+        setTimeout(() => toast.remove(), 320);
+    },
+
+    /** Masque le page-loader initial. */
+    hidePageLoader() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) { loader.classList.add('is-hidden'); setTimeout(() => loader.remove(), 400); }
+    },
+
+    /** Bascule l'onglet actif de la modale. */
+    switchTab(index) {
+        document.querySelectorAll('.tab-btn').forEach((b,i)   => b.classList.toggle('is-active', i === index));
+        document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('is-active', i === index));
+    },
+
+    /** Affiche/masque un panel conditionnel lié à une checkbox. */
+    toggleConditionalPanel(checkboxId, panelId) {
+        const checked = document.getElementById(checkboxId)?.checked;
+        const panel   = document.getElementById(panelId);
+        if (panel) panel.classList.toggle('is-hidden', !checked);
+    },
+
+    /** Bascule la visibilité du champ mot de passe patron. */
+    togglePasswordVisibility() {
+        const input = document.getElementById('fpatronpassword');
+        if (input) input.type = input.type === 'password' ? 'text' : 'password';
+    },
+
+    /** Met à jour un compteur de caractères lié à un textarea. */
+    updateCharCounter(fieldId, counterId, maxLen) {
+        const el      = document.getElementById(fieldId);
+        const counter = document.getElementById(counterId);
+        if (!el || !counter) return;
+        const len = el.value.length;
+        counter.textContent = `${len} / ${maxLen}`;
+        counter.classList.remove('char-counter-warning','char-counter-over');
+        if      (len > maxLen)        counter.classList.add('char-counter-over');
+        else if (len > maxLen * 0.85) counter.classList.add('char-counter-warning');
+    },
+
+    _resetCharCounter(counterId, maxLen) {
+        const counter = document.getElementById(counterId);
+        if (counter) { counter.textContent = `0 / ${maxLen}`; counter.classList.remove('char-counter-warning','char-counter-over'); }
+    },
+
+    /** Met à jour les 4 cartes de statistiques depuis AngelCall.State (source unique API). */
+    updateStats() {
+        const S = AngelCall.State;
+        document.getElementById('statTotal').textContent    = S.totalRestaurants.toLocaleString('fr-FR');
+        document.getElementById('statActive').textContent   = S.totalActive.toLocaleString('fr-FR');
+        document.getElementById('statInactive').textContent = S.totalInactive.toLocaleString('fr-FR');
+        document.getElementById('statPage').textContent     = S.allRestaurants.length.toLocaleString('fr-FR');
+    },
+
+    /** Rend le tableau des restaurants.
+     *  Sécurité XSS : zéro innerHTML avec données dynamiques.
+     *  Toutes les données API passent par .textContent ou createElement.
+     *  Les handlers onclick utilisent addEventListener (pas d'attributs inline). */
+    renderRestaurantsTable() {
+        const h         = AngelCall._h;
+        const rows      = AngelCall.State.allRestaurants;
+        const tableBody = document.getElementById('restaurantsTableBody');
+
+        // Vider le tbody de façon sécurisée
+        while (tableBody.firstChild) tableBody.removeChild(tableBody.firstChild);
+
+        if (!rows.length) {
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.setAttribute('colspan', '8');
+            td.innerHTML = '<div class="table-empty-state"><span class="empty-icon">🍽️</span><p class="empty-message">Aucun restaurant trouvé.</p></div>';
+            tr.appendChild(td);
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        rows.forEach(r => {
+            const tr = document.createElement('tr');
+
+            // ── Col 1 : Nom + Ville ──────────────────────────────────────────
+            const tdName   = document.createElement('td');
+            const strong   = document.createElement('strong');
+            strong.textContent = r.name || '';
+            tdName.appendChild(strong);
+            if (r.city) {
+                const br    = document.createElement('br');
+                const small = document.createElement('small');
+                small.style.color = 'var(--color-text-muted)';
+                small.textContent = r.city;
+                tdName.appendChild(br);
+                tdName.appendChild(small);
+            }
+
+            // ── Col 2 : Slug ─────────────────────────────────────────────────
+            const tdSlug = document.createElement('td');
+            const code   = document.createElement('code');
+            code.style.cssText = 'color:var(--color-gold);font-size:0.78rem';
+            code.textContent = r.slug || '';
+            tdSlug.appendChild(code);
+
+            // ── Col 3 : Téléphone ────────────────────────────────────────────
+            const tdPhone = document.createElement('td');
+            tdPhone.textContent = r.phonenumber || '—';
+
+            // ── Col 4 : Ville ────────────────────────────────────────────────
+            const tdCity = document.createElement('td');
+            tdCity.textContent = r.city || '—';
+
+            // ── Col 5 : Provider IA ──────────────────────────────────────────
+            const tdProvider = document.createElement('td');
+            tdProvider.textContent = r.llmprovider || '—';
+
+            // ── Col 6 : Statut (badge) ───────────────────────────────────────
+            const tdStatus = document.createElement('td');
+            const badge    = document.createElement('span');
+            badge.className   = r.isactive ? 'badge badge-active' : 'badge badge-inactive';
+            badge.textContent = r.isactive ? '● Actif' : '○ Inactif';
+            tdStatus.appendChild(badge);
+
+            // ── Col 7 : Date création ────────────────────────────────────────
+            const tdDate = document.createElement('td');
+            tdDate.textContent = h.formatDateFR(r.createdat);
+
+            // ── Col 8 : Actions — addEventListener (pas de onclick inline) ───
+            const tdActions = document.createElement('td');
+            tdActions.style.whiteSpace = 'nowrap';
+
+            const btnEdit = document.createElement('button');
+            btnEdit.className   = 'btn btn-secondary btn-small';
+            btnEdit.textContent = '✏️ Éditer';
+            btnEdit.addEventListener('click', () => AngelCall.UI.openEditModal(r.id));
+
+            const btnDel = document.createElement('button');
+            btnDel.className        = 'btn btn-danger btn-small';
+            btnDel.style.marginLeft = '4px';
+            btnDel.textContent      = '🗑️';
+            btnDel.addEventListener('click', () => AngelCall.UI.openConfirmDelete(r.id, r.name));
+
+            tdActions.appendChild(btnEdit);
+            tdActions.appendChild(btnDel);
+
+            [tdName, tdSlug, tdPhone, tdCity, tdProvider, tdStatus, tdDate, tdActions]
+                .forEach(td => tr.appendChild(td));
+
+            tableBody.appendChild(tr);
+        });
+    },
+
+    /** Rend la pagination. */
+    renderPagination() {
+        const S          = AngelCall.State;
+        const container  = document.getElementById('paginationContainer');
+        const totalPages = Math.ceil(S.totalRestaurants / AngelCall.Config.PAGE_SIZE);
+        const curPage    = Math.floor(S.currentOffset / AngelCall.Config.PAGE_SIZE);
+        const curQuery   = document.getElementById('searchInput').value || '';
+        const h          = AngelCall._h;
+        if (totalPages <= 1) { container.innerHTML = ''; return; }
+        container.innerHTML = `
+            <button class="page-btn pagination-btn"
+                data-offset="${Math.max(0, S.currentOffset - AngelCall.Config.PAGE_SIZE)}"
+                data-query="${h.escapeHtml(curQuery)}"
+                ${curPage === 0 ? 'disabled' : ''}>← Précédent</button>
+            <span class="page-info">Page ${curPage + 1} / ${totalPages}</span>
+            <button class="page-btn pagination-btn"
+                data-offset="${S.currentOffset + AngelCall.Config.PAGE_SIZE}"
+                data-query="${h.escapeHtml(curQuery)}"
+                ${curPage + 1 >= totalPages ? 'disabled' : ''}>Suivant →</button>`;
+        container.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                AngelCall.Api.loadRestaurants(parseInt(this.dataset.offset, 10), this.dataset.query || '');
+            });
+        });
+    },
+
+    /** Ouvre la modale en mode création. */
+    openCreateModal() {
+        const S = AngelCall.State;
+        S.isFormDirty = false; S.editingId = null; S.editingUpdatedAt = null;
+        document.getElementById('restaurantModalTitle').textContent  = 'Nouveau Restaurant';
+        document.getElementById('patronEditWarning').style.display   = 'none';
+        document.getElementById('patronPasswordStar').style.display  = '';
+        document.getElementById('patronUsernameStar').style.display  = '';
+        AngelCall.Form.resetForm();
+        this.switchTab(0);
+        document.getElementById('restaurantModalOverlay').classList.add('is-open');
+    },
+
+    /** Ouvre la modale en mode édition pour un restaurant donné. */
+    openEditModal(restaurantId) {
+        const S          = AngelCall.State;
+        const restaurant = S.allRestaurants.find(r => r.id === restaurantId);
+        if (!restaurant) { this.showToast('Restaurant introuvable dans le cache local.','error'); return; }
+        S.isFormDirty = false;
+        S.editingId   = restaurantId;
+        document.getElementById('restaurantModalTitle').textContent  = `Éditer — ${restaurant.name}`;
+        document.getElementById('patronEditWarning').style.display   = 'flex';
+        document.getElementById('patronPasswordStar').style.display  = 'none';
+        document.getElementById('patronUsernameStar').style.display  = 'none';
+        AngelCall.Form.fillForm(restaurant);
+        this.switchTab(0);
+        document.getElementById('restaurantModalOverlay').classList.add('is-open');
+    },
+
+    /** Ferme la modale restaurant avec guard dirty. */
+    closeRestaurantModal() {
+        const S = AngelCall.State;
+        if (S.isFormDirty && !confirm('Des modifications non sauvegardées seront perdues. Quitter quand même ?')) return;
+        document.getElementById('restaurantModalOverlay').classList.remove('is-open');
+        document.getElementById('saveStatusText').textContent = '';
+        S.isFormDirty = false;
+    },
+
+    /** Ouvre le dialog de confirmation de suppression. */
+    openConfirmDelete(restaurantId, restaurantName) {
+        AngelCall.State.deletingId = restaurantId;
+        document.getElementById('confirmDeleteName').textContent = restaurantName;
+        document.getElementById('confirmDeleteOverlay').classList.add('is-open');
+    },
+
+    /** Ferme le dialog de confirmation. */
+    closeConfirmDelete() {
+        document.getElementById('confirmDeleteOverlay').classList.remove('is-open');
+        AngelCall.State.deletingId = null;
+    },
+
+    /** Gère le clic sur l'overlay (fermeture au clic extérieur). */
+    handleOverlayClick(event, overlayId) {
+        if (event.target.id !== overlayId) return;
+        if (overlayId === 'restaurantModalOverlay') this.closeRestaurantModal();
+        else if (overlayId === 'confirmDeleteOverlay') this.closeConfirmDelete();
+    }
+};
+
+/* ─── FORM MODULE ─────────────────────────────────────────────────────────── */
+AngelCall.Form = {
+
+    /**
+     * Valeurs par défaut du formulaire.
+     * Centralise tous les défauts — évite les setFieldValue dispersés.
+     */
+    DEFAULTS : {
+        fname:'', fslug:'', fphonenumber:'', femail:'', faddress:'', fcity:'',
+        fpostalcode:'', fwebsiteurl:'', fmapslink:'', fdescriptionshort:'',
+        fexternalapikey:'', fexternalapiprovider:'', faveragebasket:'',
+        fescalationphonenumber:'',
+        fcountry:'France', ftimezone:'Europe/Paris', fdefaultlanguage:'fr',
+        fsoftwareprovider:'none',
+        fisactive:true, fexternalapienabled:false,
+        fmaxcoversperservice:'40', fmaxguestsperslot:'20',
+        fmaxsimultaneousbookings:'20', fslotdurationminutes:'30',
+        fbookingadvancedays:'30', fcancellationhours:'24',
+        flargegroupthreshold:'10', fminguestslargegroup:'10',
+        foverbookingpercentage:'0', fallowoverbooking:false,
+        fremindersenabled:false, freminderhoursbefore:'',
+        fsmsprovider:'twilio', fsmsapikey:'', fsmssenderid:'',
+        fsmsconfirmationtpl:'', fsmsremindertpl:'', fsmscancellationtpl:'',
+        fsmsoncreate:true, fsmsoncancel:true, fsmsonmodify:false,
+        fllmprovider:'groq', fllmmodel:'llama3-8b-8192', fllmapikey:'',
+        ftwilinumber:'', fllmmaxtokens:'1024', fllmtemperature:'0.7',
+        failanguage:'fr', fpersonality:'professional',
+        fsilencetimeoutsec:'3', fmaxcalldurationsec:'300',
+        ffallbackphone:'', ffallbackmessage:'',
+        fsystemprompt:'', fwelcomemessage:'', fclosingmessage:'', fcustompronunciation:'',
+        fenablesms:true, fenablelargegroupalert:true, fenablereminders:true,
+        fiareminderhoursbefore:'',
+        faskmarketingconsent:false, fmarketingprompt:'',
+        fpatronfullname:'', fpatronusername:'', fpatronpassword:''
+    },
+
+    /** Réinitialise tous les champs du formulaire aux valeurs par défaut. */
+    resetForm() {
+        const h = AngelCall._h;
+        Object.entries(this.DEFAULTS).forEach(([id, val]) => h.setFieldValue(id, val));
+
+        ['conditionalExternalApi','conditionalOverbooking','conditionalSmsReminder','conditionalMarketingPrompt']
+            .forEach(id => document.getElementById(id)?.classList.add('is-hidden'));
+        document.getElementById('conditionalIaReminder')?.classList.remove('is-hidden');
+        document.getElementById('llmapikey-hint').style.display = 'none';
+
+        AngelCall.UI._resetCharCounter('ccSystemprompt',8000);
+        AngelCall.UI._resetCharCounter('ccWelcomemessage',500);
+        AngelCall.UI._resetCharCounter('ccClosingmessage',500);
+        AngelCall.UI._resetCharCounter('ccMarketingprompt',300);
+
+        AngelCall.Hours.buildHoursTable();
+    },
+
+    /**
+     * Remplit le formulaire depuis un objet restaurant (réponse API).
+     * V13.2 camelCase strict : llmapikeystatus, iareminderhoursbefore, patronfullname, patronusername.
+     * @param {Object} r
+     */
+    fillForm(r) {
+        const h  = AngelCall._h;
+        const sf = (id, val) => h.setFieldValue(id, val);
+
+        // Capture pour l'optimistic locking (anti-écrasement concurrent)
+        AngelCall.State.editingUpdatedAt = r.updatedat || null;
+
+        // Identité
+        sf('fname', r.name);                        sf('fslug', r.slug);
+        sf('fphonenumber', r.phonenumber);          sf('femail', r.email);
+        sf('faddress', r.address);                  sf('fcity', r.city);
+        sf('fpostalcode', r.postalcode);             sf('fcountry', r.country || 'France');
+        sf('fwebsiteurl', r.websiteurl);             sf('fmapslink', r.mapslink);
+        sf('fdescriptionshort', r.descriptionshort);
+        sf('ftimezone', r.timezone || 'Europe/Paris');
+        sf('fdefaultlanguage', r.defaultlanguage || 'fr');
+        sf('fsoftwareprovider', r.softwareprovider || 'none');
+        sf('fexternalapiprovider', r.externalapiprovider);
+        sf('faveragebasket', r.averagebasket);
+        sf('fescalationphonenumber', r.escalationphonenumber);
+        sf('fisactive', r.isactive !== false);
+        sf('fexternalapienabled', r.externalapienabled === true);
+        sf('fexternalapikey', '');
+        document.getElementById('conditionalExternalApi')?.classList.toggle('is-hidden', !r.externalapienabled);
+
+        // Réservations
+        sf('fmaxcoversperservice', r.maxcoversperservice || '');
+        sf('fmaxguestsperslot', r.maxguestsperslot || '');
+        sf('fmaxsimultaneousbookings', r.maxsimultaneousbookings || '');
+        sf('fslotdurationminutes', r.slotdurationminutes || '30');
+        sf('fbookingadvancedays', r.bookingadvancedays || '');
+        sf('fcancellationhours', r.cancellationhours || '');
+        sf('flargegroupthreshold', r.largegroupthreshold || '');
+        sf('fminguestslargegroup', r.minguestslargegroup || '');
+        sf('foverbookingpercentage', r.overbookingpercentage || '0');
+        sf('fallowoverbooking', r.allowoverbooking === true);
+        document.getElementById('conditionalOverbooking')?.classList.toggle('is-hidden', !r.allowoverbooking);
+        sf('fremindersenabled', r.remindersenabled === true);
+        sf('freminderhoursbefore', r.reminderhoursbefore || '');
+        document.getElementById('conditionalSmsReminder')?.classList.toggle('is-hidden', !r.remindersenabled);
+
+        // SMS
+        sf('fsmsprovider', r.smsprovider || 'twilio');    sf('fsmsapikey', '');
+        sf('fsmssenderid', r.smssenderid);                sf('fsmsconfirmationtpl', r.smsconfirmationtpl);
+        sf('fsmsremindertpl', r.smsremindertpl);          sf('fsmscancellationtpl', r.smscancellationtpl);
+        sf('fsmsoncreate', r.smsoncreate !== false);
+        sf('fsmsoncancel', r.smsoncancel !== false);
+        sf('fsmsonmodify', r.smsonmodify === true);
+
+        // IA Vocale
+        sf('fllmprovider', r.llmprovider || 'groq');
+        sf('fllmmodel', r.llmmodel || 'llama3-8b-8192');
+        sf('fllmapikey', '');
+        sf('ftwilinumber', r.twilionumber);
+        sf('fllmmaxtokens', r.llmmaxtokens || '1024');
+        sf('fllmtemperature', r.llmtemperature || '0.7');
+        sf('failanguage', r.ailanguage || 'fr');
+        sf('fpersonality', r.personality || 'professional');
+        sf('fsilencetimeoutsec', r.silencetimeoutsec || '3');
+        sf('fmaxcalldurationsec', r.maxcalldurationsec || '300');
+        sf('ffallbackphone', r.fallbackphone);
+        sf('ffallbackmessage', r.fallbackmessage);
+        sf('fsystemprompt', r.systemprompt);
+        AngelCall.UI.updateCharCounter('fsystemprompt','ccSystemprompt',8000);
+        sf('fwelcomemessage', r.welcomemessage);
+        AngelCall.UI.updateCharCounter('fwelcomemessage','ccWelcomemessage',500);
+        sf('fclosingmessage', r.closingmessage);
+        AngelCall.UI.updateCharCounter('fclosingmessage','ccClosingmessage',500);
+        try {
+            sf('fcustompronunciation', r.custompronunciation ? JSON.stringify(r.custompronunciation,null,2) : '');
+        } catch { sf('fcustompronunciation',''); }
+
+        // V13.2 fix : llmapikeystatus (sans underscore)
+        document.getElementById('llmapikey-hint').style.display = r.llmapikeystatus === 'configured' ? '' : 'none';
+
+        sf('fenablesms', r.enablesms !== false);
+        sf('fenablelargegroupalert', r.enablelargegroupalert !== false);
+        sf('fenablereminders', r.enablereminders !== false);
+        // V13.2 fix : iareminderhoursbefore (sans underscore)
+        sf('fiareminderhoursbefore', r.iareminderhoursbefore || '');
+        document.getElementById('conditionalIaReminder')?.classList.toggle('is-hidden', r.enablereminders === false);
+
+        const askMarketing = r.askmarketingconsent === true;
+        sf('faskmarketingconsent', askMarketing);
+        sf('fmarketingprompt', r.marketingprompt || '');
+        AngelCall.UI.updateCharCounter('fmarketingprompt','ccMarketingprompt',300);
+        document.getElementById('conditionalMarketingPrompt')?.classList.toggle('is-hidden', !askMarketing);
+
+        // V13.2 fix : patronfullname / patronusername (sans underscore)
+        sf('fpatronfullname', r.patronfullname ?? '');
+        sf('fpatronusername', r.patronusername ?? '');
+        sf('fpatronpassword', '');
+
+        AngelCall.Hours.buildHoursTable();
+        if (r.businesshours && r.businesshours.length) AngelCall.Hours.loadBusinessHours(r.businesshours);
+    },
+
+    /** Génère automatiquement le slug à partir du nom (création uniquement). */
+    autoGenerateSlug() {
+        const nameEl = document.getElementById('fname');
+        const slugEl = document.getElementById('fslug');
+        if (!nameEl || !slugEl || AngelCall.State.editingId) return;
+        slugEl.value = nameEl.value
+            .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+            .replace(/[^a-z0-9\s-]/g,'').trim()
+            .replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
+    }
+};
+
+/* ─── HOURS MODULE ────────────────────────────────────────────────────────── */
+AngelCall.Hours = {
+
+    /** Génère dynamiquement le tbody du tableau des horaires. */
+    buildHoursTable() {
+        const tbody = document.getElementById('hoursTableBody');
+        tbody.innerHTML = AngelCall.Config.DAY_NAMES.map((dayName, i) => `
+            <tr>
+                <td class="day-label">${dayName}</td>
+                <td><label class="toggle-switch">
+                    <input type="checkbox" id="hrIsOpen${i}" checked onchange="AngelCall.Hours.toggleDayRow(${i})" />
+                    <span class="toggle-slider"></span>
+                </label></td>
+                <td><input type="time"   class="form-control" id="hrOpenTime${i}"    /></td>
+                <td><input type="time"   class="form-control" id="hrCloseTime${i}"   /></td>
+                <td><input type="number" class="form-control" id="hrMaxCapacity${i}" min="1" max="999" placeholder="—" /></td>
+                <td><input type="number" class="form-control" id="hrSlotInterval${i}" min="5" max="120" value="30" /></td>
+            </tr>`).join('');
+    },
+
+    /** Active/désactive les inputs d'une ligne selon l'état de la checkbox. */
+    toggleDayRow(index) {
+        const isOpen = document.getElementById(`hrIsOpen${index}`).checked;
+        ['hrOpenTime','hrCloseTime','hrMaxCapacity','hrSlotInterval'].forEach(prefix => {
+            const el = document.getElementById(`${prefix}${index}`);
+            if (el) el.disabled = !isOpen;
+        });
+    },
+
+    /** Applique les mêmes horaires d'ouverture à toute la semaine. */
+    applyBulkHours(openTime, closeTime) {
+        const h = AngelCall._h;
+        for (let i = 0; i < 7; i++) {
+            h.setFieldValue(`hrIsOpen${i}`, true);
+            h.setFieldValue(`hrOpenTime${i}`, openTime);
+            h.setFieldValue(`hrCloseTime${i}`, closeTime);
+            this.toggleDayRow(i);
+        }
+    },
+
+    /** Ferme le samedi (5) et le dimanche (6). */
+    closeWeekend() {
+        const h = AngelCall._h;
+        [5,6].forEach(i => { h.setFieldValue(`hrIsOpen${i}`, false); this.toggleDayRow(i); });
+    },
+
+    /**
+     * Construit le payload businesshours pour le back-end.
+     * ⚠️ Clés camelCase strictes : dayofweek, isopen, opentime, closetime, maxcapacity, slotinterval
+     * @returns {Array<Object>}
+     */
+    getBusinessHoursPayload() {
+        return AngelCall.Config.DAY_NAMES.map((_, index) => {
+            const isOpen       = document.getElementById(`hrIsOpen${index}`)?.checked     ?? false;
+            const openTime     = document.getElementById(`hrOpenTime${index}`)?.value      || null;
+            const closeTime    = document.getElementById(`hrCloseTime${index}`)?.value     || null;
+            const maxCapacity  = document.getElementById(`hrMaxCapacity${index}`)?.value;
+            const slotInterval = document.getElementById(`hrSlotInterval${index}`)?.value;
+            return {
+                dayofweek    : index,
+                isopen       : isOpen,
+                opentime     : isOpen ? (openTime  || null) : null,
+                closetime    : isOpen ? (closeTime || null) : null,
+                maxcapacity  : (maxCapacity !== '' && maxCapacity != null) ? parseInt(maxCapacity,10) : null,
+                slotinterval : slotInterval ? parseInt(slotInterval,10) : 30
+            };
+        });
+    },
+
+    /**
+     * Hydrate le tableau des horaires depuis un tableau businesshours (réponse API).
+     * @param {Array<Object>} businessHoursArray
+     */
+    loadBusinessHours(businessHoursArray) {
+        const h = AngelCall._h;
+        if (!businessHoursArray || !businessHoursArray.length) return;
+        businessHoursArray.forEach(slot => {
+            const i = slot.dayofweek;
+            h.setFieldValue(`hrIsOpen${i}`, slot.isopen);
+            if (slot.isopen) {
+                h.setFieldValue(`hrOpenTime${i}`,  slot.opentime  ? slot.opentime.substring(0,5)  : '');
+                h.setFieldValue(`hrCloseTime${i}`, slot.closetime ? slot.closetime.substring(0,5) : '');
+            }
+            if (slot.maxcapacity != null) h.setFieldValue(`hrMaxCapacity${i}`, slot.maxcapacity);
+            h.setFieldValue(`hrSlotInterval${i}`, slot.slotinterval || 30);
+            this.toggleDayRow(i);
+        });
+    }
+};
+
+/* ─── INIT ────────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+    AngelCall.Hours.buildHoursTable();
+    await AngelCall.Api.checkSession();
+    await AngelCall.Api.loadRestaurants(0);
+    AngelCall.UI.hidePageLoader();
+
+    // Recherche avec debounce 420ms
+    let searchTimer = null;
+    document.getElementById('searchInput').addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => AngelCall.Api.loadRestaurants(0, this.value), 420);
+    });
+
+    // Dirty flag global sur la modale
+    const modalOverlay = document.getElementById('restaurantModalOverlay');
+    modalOverlay.addEventListener('input',  () => { AngelCall.State.isFormDirty = true; });
+    modalOverlay.addEventListener('change', () => { AngelCall.State.isFormDirty = true; });
+});
+
+</script>
+</body>
+</html>

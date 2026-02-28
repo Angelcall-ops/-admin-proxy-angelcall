@@ -1,0 +1,8 @@
+echo '{
+  "functions": {
+    "proxy.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/proxy.js" }]
+}' > vercel.json

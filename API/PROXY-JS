@@ -1,0 +1,40 @@
+export default async function handler(req) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const path = url.pathname;
+  
+  // ❌ REMPLACE par TES URLs n8n VÉRIFIÉES
+ const n8nRoutes = {
+  '/admin-login': 'https://n8n.angelcall.fr/webhook/4bb68a11-b698-46dd-8d8d-0c463de75501',
+  '/admin-apisession': 'https://n8n.angelcall.fr/webhook/a7a8be7e-5e35-4ece-89f2-6a42f0127e2e',
+  '/admin-apirestaurants': 'https://n8n.angelcall.fr/webhook/62f10f70-eeed-4799-a735-5df14bb37649',
+  '/admin-save': 'https://n8n.angelcall.fr/webhook/2cf714f4-5541-445f-af52-fd1f2ccd19a0',
+  '/admin-apigenerate-prompt': 'https://n8n.angelcall.fr/webhook/54834634-18dd-4a4a-a449-fd5cff5cdb15',
+  '/admin-delete': 'https://n8n.angelcall.fr/webhook/07e65afe-c514-4aac-8063-c73be25cce8e'
+};
+  const targetUrl = n8nRoutes[path];
+  if (!targetUrl) return new Response('Route inconnue', { status: 404 });
+
+  try {
+    const response = await fetch(targetUrl, {
+      method: req.method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...Object.fromEntries(req.headers.entries())
+      },
+      body: req.method !== 'GET' ? await req.text() : undefined
+    });
+
+    const data = await response.json();
+    
+    return new Response(JSON.stringify(data), {
+      status: response.status,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Proxy erreur' }), { status: 500 });
+  }
+}
